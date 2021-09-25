@@ -23,97 +23,97 @@ import "@openzeppelin/contracts/token/ERC1155/IERC1155Receiver.sol";
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 interface ILostPoets is
-  IAdminControl,
-  IERC721,
-  IERC721Receiver,
-  IERC1155Receiver
+    IAdminControl,
+    IERC721,
+    IERC721Receiver,
+    IERC1155Receiver
 {
-  event Unveil(uint256 tokenId);
-  event AddWords(uint256 indexed tokenId, uint8 count);
-  event ShuffleWords(uint256 indexed tokenId);
-  event WordsLocked(bool locked);
-  event Activate();
-  event Deactivate();
+    event Unveil(uint256 tokenId);
+    event AddWords(uint256 indexed tokenId, uint8 count);
+    event ShuffleWords(uint256 indexed tokenId);
+    event WordsLocked(bool locked);
+    event Activate();
+    event Deactivate();
 
-  /**
-   * @dev Mint Origins
-   */
-  function mintOrigins(
-    address[] calldata recipients,
-    uint256[] calldata tokenIds
-  ) external;
+    /**
+     * @dev Mint Origins
+     */
+    function mintOrigins(
+        address[] calldata recipients,
+        uint256[] calldata tokenIds
+    ) external;
 
-  /**
-   * @dev Enable token redemption
-   */
-  function enableRedemption(uint256 end) external;
+    /**
+     * @dev Enable token redemption
+     */
+    function enableRedemption(uint256 end) external;
 
-  /**
-   * @dev Disable token redemption
-   */
-  function disableRedemption() external;
+    /**
+     * @dev Disable token redemption
+     */
+    function disableRedemption() external;
 
-  /**
-   * @dev Set if words are locked
-   */
-  function lockWords(bool locked) external;
+    /**
+     * @dev Set if words are locked
+     */
+    function lockWords(bool locked) external;
 
-  /**
-   * @dev Set the image base uri
-   */
-  function setPrefixURI(string calldata uri) external;
+    /**
+     * @dev Set the image base uri
+     */
+    function setPrefixURI(string calldata uri) external;
 
-  /**
-   * @dev Finalize poets
-   */
-  function finalizePoets(bool value, uint256[] memory tokenIds) external;
+    /**
+     * @dev Finalize poets
+     */
+    function finalizePoets(bool value, uint256[] memory tokenIds) external;
 
-  /**
-   * @dev Get word count for a token
-   */
-  function getWordCount(uint256 tokenId) external view returns (uint8);
+    /**
+     * @dev Get word count for a token
+     */
+    function getWordCount(uint256 tokenId) external view returns (uint8);
 
-  /**
-   * @dev Update royalties
-   */
-  function updateRoyalties(address payable recipient, uint256 bps) external;
+    /**
+     * @dev Update royalties
+     */
+    function updateRoyalties(address payable recipient, uint256 bps) external;
 
-  /**
-   * @dev Recover any 721's accidentally sent in.
-   */
-  function recoverERC721(
-    address tokenAddress,
-    uint256 tokenId,
-    address destination
-  ) external;
+    /**
+     * @dev Recover any 721's accidentally sent in.
+     */
+    function recoverERC721(
+        address tokenAddress,
+        uint256 tokenId,
+        address destination
+    ) external;
 
-  /**
-   * @dev Update ERC1155 Burn Address
-   */
-  function updateERC1155BurnAddress(address erc1155BurnAddress) external;
+    /**
+     * @dev Update ERC1155 Burn Address
+     */
+    function updateERC1155BurnAddress(address erc1155BurnAddress) external;
 
-  /**
-   * @dev Update ERC721 Burn Address
-   */
-  function updateERC721BurnAddress(address erc721BurnAddress) external;
+    /**
+     * @dev Update ERC721 Burn Address
+     */
+    function updateERC721BurnAddress(address erc721BurnAddress) external;
 
-  /**
-   * ROYALTY FUNCTIONS
-   */
-  function getRoyalties(uint256)
-    external
-    view
-    returns (address payable[] memory recipients, uint256[] memory bps);
+    /**
+     * ROYALTY FUNCTIONS
+     */
+    function getRoyalties(uint256)
+        external
+        view
+        returns (address payable[] memory recipients, uint256[] memory bps);
 
-  function getFeeRecipients(uint256)
-    external
-    view
-    returns (address payable[] memory recipients);
+    function getFeeRecipients(uint256)
+        external
+        view
+        returns (address payable[] memory recipients);
 
-  function getFeeBps(uint256) external view returns (uint256[] memory bps);
+    function getFeeBps(uint256) external view returns (uint256[] memory bps);
 
-  function royaltyInfo(uint256, uint256 value)
-    external
-    view
-    returns (address, uint256);
+    function royaltyInfo(uint256, uint256 value)
+        external
+        view
+        returns (address, uint256);
 }
