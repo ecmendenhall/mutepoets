@@ -184,6 +184,9 @@ describe("silence", () => {
       expect(
         await contracts.lostPoets.balanceOf(contracts.silence.address)
       ).to.equal(1);
+      expect(
+        await contracts.lostPoets.ownerOf(1025)
+      ).to.equal(contracts.silence.address);
     });
 
     it("creates a Vow record", async () => {
