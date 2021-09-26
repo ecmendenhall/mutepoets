@@ -3,10 +3,17 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect } from "chai";
 import { ethers } from "hardhat";
 
-import { MockERC20, LostPoetPages, LostPoets, Silence } from "../typechain";
+import {
+  MockERC20,
+  MockERC721,
+  LostPoetPages,
+  LostPoets,
+  Silence,
+} from "../typechain";
 
 interface Contracts {
   mockAsh: MockERC20;
+  mockNFT: MockERC721;
   lostPoetPages: LostPoetPages;
   lostPoets: LostPoets;
   silence: Silence;
@@ -17,6 +24,11 @@ async function deploy(): Promise<Contracts> {
   const mockAsh = (await (
     await MockERC20Factory.deploy("Mock Ash", "ASH")
   ).deployed()) as MockERC20;
+
+  const MockERC721Factory = await ethers.getContractFactory("MockERC721");
+  const mockNFT = (await (
+    await MockERC721Factory.deploy("Not Poets", "NOTLOST")
+  ).deployed()) as MockERC721;
 
   const LostPoetPagesFactory = await ethers.getContractFactory("LostPoetPages");
   const lostPoetPages = (await (
@@ -32,7 +44,7 @@ async function deploy(): Promise<Contracts> {
   const silence = (await (
     await SilenceFactory.deploy(lostPoets.address)
   ).deployed()) as Silence;
-  return { mockAsh, lostPoetPages, lostPoets, silence };
+  return { mockAsh, mockNFT, lostPoetPages, lostPoets, silence };
 }
 
 let contracts: Contracts;
@@ -184,9 +196,9 @@ describe("silence", () => {
       expect(
         await contracts.lostPoets.balanceOf(contracts.silence.address)
       ).to.equal(1);
-      expect(
-        await contracts.lostPoets.ownerOf(1025)
-      ).to.equal(contracts.silence.address);
+      expect(await contracts.lostPoets.ownerOf(1025)).to.equal(
+        contracts.silence.address
+      );
     });
 
     it("creates a Vow record", async () => {
@@ -334,33 +346,22 @@ describe("silence", () => {
 
       await ethers.provider.send("evm_increaseTime", [24 * 60 * 60]);
       await ethers.provider.send("evm_mine", []);
-      expect(await contracts.silence.claimable(1025)).to.equal(
-        parseEther("1")
-      );
+      expect(await contracts.silence.claimable(1025)).to.equal(parseEther("1"));
 
       await ethers.provider.send("evm_increaseTime", [24 * 60 * 60]);
       await ethers.provider.send("evm_mine", []);
-      expect(await contracts.silence.claimable(1025)).to.equal(
-        parseEther("2")
-      );
+      expect(await contracts.silence.claimable(1025)).to.equal(parseEther("2"));
 
       await ethers.provider.send("evm_increaseTime", [24 * 60 * 60]);
       await ethers.provider.send("evm_mine", []);
-      expect(await contracts.silence.claimable(1025)).to.equal(
-        parseEther("3")
-      );
+      expect(await contracts.silence.claimable(1025)).to.equal(parseEther("3"));
 
       await contracts.silence.connect(poetHolder).claim(1025);
-      expect(await contracts.silence.claimable(1025)).to.equal(
-        0
-
-      );
+      expect(await contracts.silence.claimable(1025)).to.equal(0);
 
       await ethers.provider.send("evm_increaseTime", [24 * 60 * 60]);
       await ethers.provider.send("evm_mine", []);
-      expect(await contracts.silence.claimable(1025)).to.equal(
-        parseEther("1")
-      );
+      expect(await contracts.silence.claimable(1025)).to.equal(parseEther("1"));
     });
 
     it("rounds down days", async () => {
@@ -369,6 +370,53 @@ describe("silence", () => {
       await ethers.provider.send("evm_increaseTime", [24 * 60 * 60 - 1]);
       await ethers.provider.send("evm_mine", []);
       expect(await contracts.silence.claimable(1025)).to.equal(0);
+    });
+  });
+
+  describe("onERC721Received", () => {
+    beforeEach(async () => {
+      await buyPage(poetHolder, contracts);
+      await mintPoet(poetHolder, contracts);
+      await contracts.lostPoets
+        .connect(poetHolder)
+        .approve(contracts.silence.address, 1025);
+    });
+
+    it("reverts if received token is not a Poet", async () => {
+      await contracts.mockNFT.mint(nonOwner.address, 1);
+      await expect(
+        contracts.mockNFT
+          .connect(nonOwner)
+          ["safeTransferFrom(address,address,uint256)"](
+            nonOwner.address,
+            contracts.silence.address,
+            1
+          )
+      ).to.be.revertedWith("!poet");
+    });
+
+    it("creates vow when a mute poet is received", async () => {
+      expect(
+        await contracts.lostPoets.balanceOf(contracts.silence.address)
+      ).to.equal(0);
+
+      const tx = await contracts.lostPoets
+        .connect(poetHolder)
+        ["safeTransferFrom(address,address,uint256)"](
+          poetHolder.address,
+          contracts.silence.address,
+          1025
+        );
+      const receipt = await tx.wait();
+      const block = await ethers.provider.getBlock(receipt.blockNumber);
+
+      expect(
+        await contracts.lostPoets.balanceOf(contracts.silence.address)
+      ).to.equal(1);
+
+      const [owner, updated] = await contracts.silence.vows(1025);
+      expect(owner).to.equal(poetHolder.address);
+      expect(updated).to.equal(block.timestamp);
     });
   });
 });

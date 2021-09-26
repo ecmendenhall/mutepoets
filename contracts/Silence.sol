@@ -20,9 +20,7 @@ contract Silence is ERC20, IERC721Receiver {
 
     function takeVow(uint256 tokenId) public {
         require(poets.ownerOf(tokenId) == msg.sender, "!owner");
-        require(poets.getWordCount(tokenId) == 0, "!mute");
-        vows[tokenId].owner = msg.sender;
-        vows[tokenId].updated = block.timestamp;
+        _takeVow(msg.sender, tokenId);
         poets.safeTransferFrom(msg.sender, address(this), tokenId);
     }
 
@@ -46,14 +44,28 @@ contract Silence is ERC20, IERC721Receiver {
 
     function onERC721Received(
         address,
-        address,
-        uint256,
-        bytes memory
+        address from,
+        uint256 tokenId,
+        bytes calldata
     ) public virtual override returns (bytes4) {
+        require(msg.sender == address(poets), "!poet");
+        if (tokenId > 1024 && vows[tokenId].updated == 0) {
+            _takeVow(from, tokenId);
+        }
         return this.onERC721Received.selector;
     }
 
-    function _claimableSilence(uint256 tokenId) internal view returns (uint256) {
+    function _takeVow(address owner, uint256 tokenId) internal {
+        require(poets.getWordCount(tokenId) == 0, "!mute");
+        vows[tokenId].owner = owner;
+        vows[tokenId].updated = block.timestamp;
+    }
+
+    function _claimableSilence(uint256 tokenId)
+        internal
+        view
+        returns (uint256)
+    {
         uint256 duration = (block.timestamp - vows[tokenId].updated) / (1 days);
         return duration * 1e18;
     }
