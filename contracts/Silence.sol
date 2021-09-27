@@ -3,9 +3,10 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "./interfaces/IPoets.sol";
 
-contract Silence is ERC20, IERC721Receiver {
+contract Silence is ERC20, ReentrancyGuard, IERC721Receiver {
     struct Vow {
         address owner;
         uint256 tokenId;
@@ -23,21 +24,22 @@ contract Silence is ERC20, IERC721Receiver {
         poets = IPoets(_poets);
     }
 
-    function takeVow(uint256 tokenId) public {
+    function takeVow(uint256 tokenId) public nonReentrant {
         require(poets.ownerOf(tokenId) == msg.sender, "!owner");
         _takeVow(msg.sender, tokenId);
-        poets.safeTransferFrom(msg.sender, address(this), tokenId);
+        poets.transferFrom(msg.sender, address(this), tokenId);
     }
 
-    function breakVow(uint256 vowId) public {
+    function breakVow(uint256 vowId) public nonReentrant {
         require(vows[vowId].updated != 0, "!vow");
         require(vows[vowId].owner == msg.sender, "!owner");
         uint256 tokenId = vows[vowId].tokenId;
+        address owner = vows[vowId].owner;
         uint256 accrued = _claimSilence(vowId);
-        _mint(msg.sender, accrued);
-        poets.safeTransferFrom(address(this), vows[vowId].owner, tokenId);
         delete vowByTokenId[tokenId];
         delete vows[vowId];
+        _mint(msg.sender, accrued);
+        poets.safeTransferFrom(address(this), owner, tokenId);
     }
 
     function claim(uint256 vowId) public {
@@ -47,14 +49,17 @@ contract Silence is ERC20, IERC721Receiver {
         _mint(msg.sender, amount);
     }
 
-    function claimBatch(uint256[] calldata vowIds) public {
-        require(vowIds.length <= 25, "batch>25");
-        uint256 total;
+    function claimAll() public {
+        claimBatch(getVowsByAddress(msg.sender));
+    }
 
+    function claimBatch(uint256[] memory vowIds) public {
+        uint256 total;
         for (uint256 i = 0; i < vowIds.length; i++) {
-            require(vows[vowIds[i]].updated != 0, "!vow");
-            require(vows[vowIds[i]].owner == msg.sender, "!owner");
-            total += _claimSilence(vowIds[i]);
+            if (vows[vowIds[i]].updated != 0) {
+                require(vows[vowIds[i]].owner == msg.sender, "!owner");
+                total += _claimSilence(vowIds[i]);
+            }
         }
         _mint(msg.sender, total);
     }
@@ -76,7 +81,7 @@ contract Silence is ERC20, IERC721Receiver {
         address from,
         uint256 tokenId,
         bytes calldata
-    ) public virtual override returns (bytes4) {
+    ) public override nonReentrant returns (bytes4) {
         require(msg.sender == address(poets), "!poet");
         if (tokenId > 1024 && vowByTokenId[tokenId] == 0) {
             _takeVow(from, tokenId);

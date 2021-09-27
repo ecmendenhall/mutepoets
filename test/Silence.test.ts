@@ -433,9 +433,9 @@ describe("silence", () => {
 
   describe("claimBatch", () => {
     beforeEach(async () => {
-      await buyPages(poetHolder, 26, contracts);
-      await mintPoets(poetHolder, 26, contracts);
-      for (let i = 0; i < 26; i++) {
+      await buyPages(poetHolder, 3, contracts);
+      await mintPoets(poetHolder, 3, contracts);
+      for (let i = 0; i < 3; i++) {
         const tokenId = 1025 + i;
         await contracts.lostPoets
           .connect(poetHolder)
@@ -455,35 +455,15 @@ describe("silence", () => {
       );
     });
 
-    it("claims up to 25 vows", async () => {
+    it("ignores invalid vows", async () => {
       expect(await contracts.silence.balanceOf(poetHolder.address)).to.equal(0);
 
       await ethers.provider.send("evm_increaseTime", [24 * 60 * 60]);
-      await contracts.silence
-        .connect(poetHolder)
-        .claimBatch(range(26).slice(1));
+      await contracts.silence.connect(poetHolder).claimBatch([1, 1234]);
 
       expect(await contracts.silence.balanceOf(poetHolder.address)).to.equal(
-        parseEther("25")
+        parseEther("1")
       );
-    });
-
-    it("reverts on claims > 25", async () => {
-      expect(await contracts.silence.balanceOf(poetHolder.address)).to.equal(0);
-
-      await ethers.provider.send("evm_increaseTime", [24 * 60 * 60]);
-      await expect(
-        contracts.silence.connect(poetHolder).claimBatch(range(27).slice(1))
-      ).to.be.revertedWith("batch>25");
-    });
-
-    it("reverts on invalid vows", async () => {
-      expect(await contracts.silence.balanceOf(poetHolder.address)).to.equal(0);
-
-      await ethers.provider.send("evm_increaseTime", [24 * 60 * 60]);
-      await expect(
-        contracts.silence.connect(poetHolder).claimBatch([1234])
-      ).to.be.revertedWith("!vow");
     });
 
     it("reverts on unowned vows", async () => {
@@ -493,6 +473,44 @@ describe("silence", () => {
       await expect(
         contracts.silence.connect(nonOwner).claimBatch([1, 2, 3])
       ).to.be.revertedWith("!owner");
+    });
+  });
+
+  describe("claimAll", () => {
+    beforeEach(async () => {
+      await buyPages(poetHolder, 10, contracts);
+      await mintPoets(poetHolder, 10, contracts);
+      for (let i = 0; i < 10; i++) {
+        const tokenId = 1025 + i;
+        await contracts.lostPoets
+          .connect(poetHolder)
+          .approve(contracts.silence.address, tokenId);
+        await contracts.silence.connect(poetHolder).takeVow(tokenId);
+      }
+    });
+
+    it("claims all accrued SILENCE for sender's vows", async () => {
+      expect(await contracts.silence.balanceOf(poetHolder.address)).to.equal(0);
+
+      await ethers.provider.send("evm_increaseTime", [24 * 60 * 60]);
+      await contracts.silence.connect(poetHolder).claimAll();
+
+      expect(await contracts.silence.balanceOf(poetHolder.address)).to.equal(
+        parseEther("10")
+      );
+    });
+
+    it("handles broken vows", async () => {
+      expect(await contracts.silence.balanceOf(poetHolder.address)).to.equal(0);
+      await contracts.silence.connect(poetHolder).breakVow(1);
+      await contracts.silence.connect(poetHolder).breakVow(5);
+
+      await ethers.provider.send("evm_increaseTime", [24 * 60 * 60]);
+      await contracts.silence.connect(poetHolder).claimAll();
+
+      expect(await contracts.silence.balanceOf(poetHolder.address)).to.equal(
+        parseEther("8")
+      );
     });
   });
 
