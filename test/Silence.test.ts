@@ -1,4 +1,4 @@
-import { parseEther } from "@ethersproject/units";
+import { parseEther, parseUnits } from "@ethersproject/units";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect } from "chai";
 import { ethers } from "hardhat";
@@ -50,7 +50,13 @@ async function deploy(): Promise<Contracts> {
 let contracts: Contracts;
 let owner: SignerWithAddress,
   nonOwner: SignerWithAddress,
-  poetHolder: SignerWithAddress;
+  poetHolder: SignerWithAddress,
+  poetHolder1: SignerWithAddress,
+  poetHolder2: SignerWithAddress;
+
+const range = (n: number) => {
+  return [...Array(n).keys()];
+};
 
 const buyPage = async (signer: SignerWithAddress, contracts: Contracts) => {
   await buyPages(signer, 1, contracts);
@@ -76,6 +82,16 @@ const mintPoet = async (signer: SignerWithAddress, contracts: Contracts) => {
       1,
       ethers.utils.defaultAbiCoder.encode(["uint256"], [0])
     );
+};
+
+const mintPoets = async (
+  signer: SignerWithAddress,
+  poets: number,
+  contracts: Contracts
+) => {
+  for (let i = 0; i < poets; i++) {
+    mintPoet(signer, contracts);
+  }
 };
 
 const addWord = async (
@@ -119,7 +135,8 @@ const unlockWords = async (owner: SignerWithAddress, contracts: Contracts) => {
 describe("silence", () => {
   beforeEach(async () => {
     contracts = await deploy();
-    [owner, nonOwner, poetHolder] = await ethers.getSigners();
+    [owner, nonOwner, poetHolder, poetHolder1, poetHolder2] =
+      await ethers.getSigners();
 
     await activatePageSale(owner, contracts);
     await enablePageRedemption(owner, contracts);
@@ -145,6 +162,95 @@ describe("silence", () => {
 
     it("uses 18 decimals", async () => {
       expect(await contracts.silence.decimals()).to.equal(18);
+    });
+  });
+
+  describe("getVowsByAddress", () => {
+    beforeEach(async () => {
+      await buyPages(poetHolder1, 3, contracts);
+      await mintPoets(poetHolder1, 3, contracts);
+      await buyPages(poetHolder2, 3, contracts);
+      await mintPoets(poetHolder2, 3, contracts);
+      await contracts.lostPoets
+        .connect(poetHolder1)
+        .approve(contracts.silence.address, 1025);
+      await contracts.lostPoets
+        .connect(poetHolder1)
+        .approve(contracts.silence.address, 1026);
+      await contracts.lostPoets
+        .connect(poetHolder1)
+        .approve(contracts.silence.address, 1027);
+      await contracts.lostPoets
+        .connect(poetHolder2)
+        .approve(contracts.silence.address, 1028);
+      await contracts.lostPoets
+        .connect(poetHolder2)
+        .approve(contracts.silence.address, 1029);
+      await contracts.lostPoets
+        .connect(poetHolder2)
+        .approve(contracts.silence.address, 1030);
+      await contracts.silence.connect(poetHolder1).takeVow(1025);
+    });
+
+    it("returns all vowIds for a given address", async () => {
+      expect(
+        await contracts.silence.getVowsByAddress(poetHolder1.address)
+      ).to.eql([parseUnits("1", "wei")]);
+      await contracts.silence.connect(poetHolder1).takeVow(1026);
+      expect(
+        await contracts.silence.getVowsByAddress(poetHolder1.address)
+      ).to.eql([parseUnits("1", "wei"), parseUnits("2", "wei")]);
+      await contracts.silence.connect(poetHolder2).takeVow(1028);
+      await contracts.silence.connect(poetHolder2).takeVow(1029);
+      await contracts.silence.connect(poetHolder1).takeVow(1027);
+      expect(
+        await contracts.silence.getVowsByAddress(poetHolder2.address)
+      ).to.eql([parseUnits("3", "wei"), parseUnits("4", "wei")]);
+      expect(
+        await contracts.silence.getVowsByAddress(poetHolder1.address)
+      ).to.eql([
+        parseUnits("1", "wei"),
+        parseUnits("2", "wei"),
+        parseUnits("5", "wei"),
+      ]);
+      await contracts.silence.connect(poetHolder2).takeVow(1030);
+      expect(
+        await contracts.silence.getVowsByAddress(poetHolder2.address)
+      ).to.eql([
+        parseUnits("3", "wei"),
+        parseUnits("4", "wei"),
+        parseUnits("6", "wei"),
+      ]);
+    });
+
+    it("does not remove vowIds when broken", async () => {
+      expect(
+        await contracts.silence.getVowsByAddress(poetHolder1.address)
+      ).to.eql([parseUnits("1", "wei")]);
+      await contracts.silence.connect(poetHolder1).breakVow(1);
+      expect(
+        await contracts.silence.getVowsByAddress(poetHolder1.address)
+      ).to.eql([parseUnits("1", "wei")]);
+    });
+  });
+
+  describe("vowByTokenId", () => {
+    beforeEach(async () => {
+      await buyPage(poetHolder, contracts);
+      await mintPoet(poetHolder, contracts);
+      await contracts.lostPoets
+        .connect(poetHolder)
+        .approve(contracts.silence.address, 1025);
+      await contracts.silence.connect(poetHolder).takeVow(1025);
+    });
+
+    it("returns vowId for a given tokenId", async () => {
+      expect(await contracts.silence.vowByTokenId(1025)).to.equal(1);
+    });
+
+    it("returns zero when vow does not exist", async () => {
+      await contracts.silence.connect(poetHolder).breakVow(1);
+      expect(await contracts.silence.vowByTokenId(1025)).to.equal(0);
     });
   });
 
@@ -288,12 +394,6 @@ describe("silence", () => {
       ).to.be.revertedWith("!vow");
     });
 
-    it("reverts if caller did not create vow", async () => {
-      await expect(
-        contracts.silence.connect(nonOwner).claim(1)
-      ).to.be.revertedWith("!owner");
-    });
-
     it("transfers 1 SILENCE per day", async () => {
       expect(await contracts.silence.balanceOf(poetHolder.address)).to.equal(0);
 
@@ -328,6 +428,71 @@ describe("silence", () => {
       await ethers.provider.send("evm_increaseTime", [24 * 60 * 60 - 1]);
       await contracts.silence.connect(poetHolder).claim(1);
       expect(await contracts.silence.balanceOf(poetHolder.address)).to.equal(0);
+    });
+  });
+
+  describe("claimBatch", () => {
+    beforeEach(async () => {
+      await buyPages(poetHolder, 26, contracts);
+      await mintPoets(poetHolder, 26, contracts);
+      for (let i = 0; i < 26; i++) {
+        const tokenId = 1025 + i;
+        await contracts.lostPoets
+          .connect(poetHolder)
+          .approve(contracts.silence.address, tokenId);
+        await contracts.silence.connect(poetHolder).takeVow(tokenId);
+      }
+    });
+
+    it("claims all accrued SILENCE for a batch of vows", async () => {
+      expect(await contracts.silence.balanceOf(poetHolder.address)).to.equal(0);
+
+      await ethers.provider.send("evm_increaseTime", [24 * 60 * 60]);
+      await contracts.silence.connect(poetHolder).claimBatch([1, 2, 3]);
+
+      expect(await contracts.silence.balanceOf(poetHolder.address)).to.equal(
+        parseEther("3")
+      );
+    });
+
+    it("claims up to 25 vows", async () => {
+      expect(await contracts.silence.balanceOf(poetHolder.address)).to.equal(0);
+
+      await ethers.provider.send("evm_increaseTime", [24 * 60 * 60]);
+      await contracts.silence
+        .connect(poetHolder)
+        .claimBatch(range(26).slice(1));
+
+      expect(await contracts.silence.balanceOf(poetHolder.address)).to.equal(
+        parseEther("25")
+      );
+    });
+
+    it("reverts on claims > 25", async () => {
+      expect(await contracts.silence.balanceOf(poetHolder.address)).to.equal(0);
+
+      await ethers.provider.send("evm_increaseTime", [24 * 60 * 60]);
+      await expect(
+        contracts.silence.connect(poetHolder).claimBatch(range(27).slice(1))
+      ).to.be.revertedWith("batch>25");
+    });
+
+    it("reverts on invalid vows", async () => {
+      expect(await contracts.silence.balanceOf(poetHolder.address)).to.equal(0);
+
+      await ethers.provider.send("evm_increaseTime", [24 * 60 * 60]);
+      await expect(
+        contracts.silence.connect(poetHolder).claimBatch([1234])
+      ).to.be.revertedWith("!vow");
+    });
+
+    it("reverts on unowned vows", async () => {
+      expect(await contracts.silence.balanceOf(poetHolder.address)).to.equal(0);
+
+      await ethers.provider.send("evm_increaseTime", [24 * 60 * 60]);
+      await expect(
+        contracts.silence.connect(nonOwner).claimBatch([1, 2, 3])
+      ).to.be.revertedWith("!owner");
     });
   });
 

@@ -33,7 +33,8 @@ contract Silence is ERC20, IERC721Receiver {
         require(vows[vowId].updated != 0, "!vow");
         require(vows[vowId].owner == msg.sender, "!owner");
         uint256 tokenId = vows[vowId].tokenId;
-        _claimSilence(msg.sender, vowId);
+        uint256 accrued = _claimSilence(vowId);
+        _mint(msg.sender, accrued);
         poets.safeTransferFrom(address(this), vows[vowId].owner, tokenId);
         delete vowByTokenId[tokenId];
         delete vows[vowId];
@@ -42,11 +43,32 @@ contract Silence is ERC20, IERC721Receiver {
     function claim(uint256 vowId) public {
         require(vows[vowId].updated != 0, "!vow");
         require(vows[vowId].owner == msg.sender, "!owner");
-        _claimSilence(msg.sender, vowId);
+        uint256 amount = _claimSilence(vowId);
+        _mint(msg.sender, amount);
+    }
+
+    function claimBatch(uint256[] calldata vowIds) public {
+        require(vowIds.length <= 25, "batch>25");
+        uint256 total;
+
+        for (uint256 i = 0; i < vowIds.length; i++) {
+            require(vows[vowIds[i]].updated != 0, "!vow");
+            require(vows[vowIds[i]].owner == msg.sender, "!owner");
+            total += _claimSilence(vowIds[i]);
+        }
+        _mint(msg.sender, total);
     }
 
     function claimable(uint256 vowId) public view returns (uint256) {
         return _claimableSilence(vowId);
+    }
+
+    function getVowsByAddress(address owner)
+        public
+        view
+        returns (uint256[] memory)
+    {
+        return vowsByAddress[owner];
     }
 
     function onERC721Received(
@@ -77,9 +99,9 @@ contract Silence is ERC20, IERC721Receiver {
         return duration * 1e18;
     }
 
-    function _claimSilence(address to, uint256 vowId) internal {
+    function _claimSilence(uint256 vowId) internal returns (uint256) {
         uint256 amount = _claimableSilence(vowId);
         vows[vowId].updated = block.timestamp;
-        _mint(to, amount);
+        return amount;
     }
 }
