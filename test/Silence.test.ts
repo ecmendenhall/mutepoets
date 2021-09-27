@@ -211,8 +211,9 @@ describe("silence", () => {
       const receipt = await tx.wait();
       const block = await ethers.provider.getBlock(receipt.blockNumber);
 
-      const [owner, updated] = await contracts.silence.vows(1025);
+      const [owner, tokenId, updated] = await contracts.silence.vows(1);
       expect(owner).to.equal(poetHolder.address);
+      expect(tokenId).to.equal(1025);
       expect(updated).to.equal(block.timestamp);
     });
   });
@@ -229,13 +230,13 @@ describe("silence", () => {
 
     it("reverts if vow does not exist", async () => {
       await expect(
-        contracts.silence.connect(nonOwner).breakVow(1026)
+        contracts.silence.connect(nonOwner).breakVow(2)
       ).to.be.revertedWith("!vow");
     });
 
     it("reverts if caller did not create vow", async () => {
       await expect(
-        contracts.silence.connect(nonOwner).breakVow(1025)
+        contracts.silence.connect(nonOwner).breakVow(1)
       ).to.be.revertedWith("!owner");
     });
 
@@ -244,7 +245,7 @@ describe("silence", () => {
         0
       );
 
-      await contracts.silence.connect(poetHolder).breakVow(1025);
+      await contracts.silence.connect(poetHolder).breakVow(1);
 
       expect(await contracts.lostPoets.balanceOf(poetHolder.address)).to.equal(
         1
@@ -256,16 +257,17 @@ describe("silence", () => {
 
     it("transfers accrued SILENCE", async () => {
       await ethers.provider.send("evm_increaseTime", [10 * 24 * 60 * 60]);
-      await contracts.silence.connect(poetHolder).breakVow(1025);
+      await contracts.silence.connect(poetHolder).breakVow(1);
       expect(await contracts.silence.balanceOf(poetHolder.address)).to.equal(
         parseEther("10")
       );
     });
 
     it("deletes the vow", async () => {
-      await contracts.silence.connect(poetHolder).breakVow(1025);
-      const [owner, updated] = await contracts.silence.vows(1025);
+      await contracts.silence.connect(poetHolder).breakVow(1);
+      const [owner, tokenId, updated] = await contracts.silence.vows(1);
       expect(owner).to.equal(ethers.constants.AddressZero);
+      expect(tokenId).to.equal(0);
       expect(updated).to.equal(0);
     });
   });
@@ -282,36 +284,36 @@ describe("silence", () => {
 
     it("reverts if vow does not exist", async () => {
       await expect(
-        contracts.silence.connect(nonOwner).claim(1026)
+        contracts.silence.connect(nonOwner).claim(2)
       ).to.be.revertedWith("!vow");
     });
 
     it("reverts if caller did not create vow", async () => {
       await expect(
-        contracts.silence.connect(nonOwner).claim(1025)
+        contracts.silence.connect(nonOwner).claim(1)
       ).to.be.revertedWith("!owner");
     });
 
     it("transfers 1 SILENCE per day", async () => {
       expect(await contracts.silence.balanceOf(poetHolder.address)).to.equal(0);
 
-      await contracts.silence.connect(poetHolder).claim(1025);
+      await contracts.silence.connect(poetHolder).claim(1);
       expect(await contracts.silence.balanceOf(poetHolder.address)).to.equal(0);
 
       await ethers.provider.send("evm_increaseTime", [24 * 60 * 60]);
-      await contracts.silence.connect(poetHolder).claim(1025);
+      await contracts.silence.connect(poetHolder).claim(1);
       expect(await contracts.silence.balanceOf(poetHolder.address)).to.equal(
         parseEther("1")
       );
 
       await ethers.provider.send("evm_increaseTime", [24 * 60 * 60]);
-      await contracts.silence.connect(poetHolder).claim(1025);
+      await contracts.silence.connect(poetHolder).claim(1);
       expect(await contracts.silence.balanceOf(poetHolder.address)).to.equal(
         parseEther("2")
       );
 
       await ethers.provider.send("evm_increaseTime", [24 * 60 * 60]);
-      await contracts.silence.connect(poetHolder).claim(1025);
+      await contracts.silence.connect(poetHolder).claim(1);
       expect(await contracts.silence.balanceOf(poetHolder.address)).to.equal(
         parseEther("3")
       );
@@ -320,11 +322,11 @@ describe("silence", () => {
     it("rounds down days", async () => {
       expect(await contracts.silence.balanceOf(poetHolder.address)).to.equal(0);
 
-      await contracts.silence.connect(poetHolder).claim(1025);
+      await contracts.silence.connect(poetHolder).claim(1);
       expect(await contracts.silence.balanceOf(poetHolder.address)).to.equal(0);
 
       await ethers.provider.send("evm_increaseTime", [24 * 60 * 60 - 1]);
-      await contracts.silence.connect(poetHolder).claim(1025);
+      await contracts.silence.connect(poetHolder).claim(1);
       expect(await contracts.silence.balanceOf(poetHolder.address)).to.equal(0);
     });
   });
@@ -342,34 +344,34 @@ describe("silence", () => {
     it("returns accrued SILENCE", async () => {
       expect(await contracts.silence.balanceOf(poetHolder.address)).to.equal(0);
 
-      expect(await contracts.silence.claimable(1025)).to.equal(0);
+      expect(await contracts.silence.claimable(1)).to.equal(0);
 
       await ethers.provider.send("evm_increaseTime", [24 * 60 * 60]);
       await ethers.provider.send("evm_mine", []);
-      expect(await contracts.silence.claimable(1025)).to.equal(parseEther("1"));
+      expect(await contracts.silence.claimable(1)).to.equal(parseEther("1"));
 
       await ethers.provider.send("evm_increaseTime", [24 * 60 * 60]);
       await ethers.provider.send("evm_mine", []);
-      expect(await contracts.silence.claimable(1025)).to.equal(parseEther("2"));
+      expect(await contracts.silence.claimable(1)).to.equal(parseEther("2"));
 
       await ethers.provider.send("evm_increaseTime", [24 * 60 * 60]);
       await ethers.provider.send("evm_mine", []);
-      expect(await contracts.silence.claimable(1025)).to.equal(parseEther("3"));
+      expect(await contracts.silence.claimable(1)).to.equal(parseEther("3"));
 
-      await contracts.silence.connect(poetHolder).claim(1025);
-      expect(await contracts.silence.claimable(1025)).to.equal(0);
+      await contracts.silence.connect(poetHolder).claim(1);
+      expect(await contracts.silence.claimable(1)).to.equal(0);
 
       await ethers.provider.send("evm_increaseTime", [24 * 60 * 60]);
       await ethers.provider.send("evm_mine", []);
-      expect(await contracts.silence.claimable(1025)).to.equal(parseEther("1"));
+      expect(await contracts.silence.claimable(1)).to.equal(parseEther("1"));
     });
 
     it("rounds down days", async () => {
-      expect(await contracts.silence.claimable(1025)).to.equal(0);
+      expect(await contracts.silence.claimable(1)).to.equal(0);
 
-      await ethers.provider.send("evm_increaseTime", [24 * 60 * 60 - 1]);
+      await ethers.provider.send("evm_increaseTime", [24 * 60 * 60 - 10]);
       await ethers.provider.send("evm_mine", []);
-      expect(await contracts.silence.claimable(1025)).to.equal(0);
+      expect(await contracts.silence.claimable(1)).to.equal(0);
     });
   });
 
@@ -414,8 +416,9 @@ describe("silence", () => {
         await contracts.lostPoets.balanceOf(contracts.silence.address)
       ).to.equal(1);
 
-      const [owner, updated] = await contracts.silence.vows(1025);
+      const [owner, tokenId, updated] = await contracts.silence.vows(1);
       expect(owner).to.equal(poetHolder.address);
+      expect(tokenId).to.equal(1025);
       expect(updated).to.equal(block.timestamp);
     });
   });
