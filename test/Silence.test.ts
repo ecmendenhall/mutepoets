@@ -94,6 +94,12 @@ const mintPoets = async (
   }
 };
 
+const mintOrigin = async (signer: SignerWithAddress, contracts: Contracts) => {
+  await contracts.lostPoets
+    .connect(signer)
+    .mintOrigins([contracts.silence.address], [100]);
+};
+
 const addWord = async (
   signer: SignerWithAddress,
   tokenId: number,
@@ -266,7 +272,7 @@ describe("silence", () => {
       await mintPoet(poetHolder, contracts);
       await expect(
         contracts.silence.connect(nonOwner).takeVow(1025)
-      ).to.be.revertedWith("!owner");
+      ).to.be.revertedWith("!tokenOwner");
     });
 
     it("reverts if poet is not mute", async () => {
@@ -317,8 +323,8 @@ describe("silence", () => {
       const receipt = await tx.wait();
       const block = await ethers.provider.getBlock(receipt.blockNumber);
 
-      const [owner, tokenId, updated] = await contracts.silence.vows(1);
-      expect(owner).to.equal(poetHolder.address);
+      const [tokenOwner, tokenId, updated] = await contracts.silence.vows(1);
+      expect(tokenOwner).to.equal(poetHolder.address);
       expect(tokenId).to.equal(1025);
       expect(updated).to.equal(block.timestamp);
     });
@@ -343,7 +349,7 @@ describe("silence", () => {
     it("reverts if caller did not create vow", async () => {
       await expect(
         contracts.silence.connect(nonOwner).breakVow(1)
-      ).to.be.revertedWith("!owner");
+      ).to.be.revertedWith("!tokenOwner");
     });
 
     it("transfers back the caller's poet", async () => {
@@ -371,8 +377,8 @@ describe("silence", () => {
 
     it("deletes the vow", async () => {
       await contracts.silence.connect(poetHolder).breakVow(1);
-      const [owner, tokenId, updated] = await contracts.silence.vows(1);
-      expect(owner).to.equal(ethers.constants.AddressZero);
+      const [tokenOwner, tokenId, updated] = await contracts.silence.vows(1);
+      expect(tokenOwner).to.equal(ethers.constants.AddressZero);
       expect(tokenId).to.equal(0);
       expect(updated).to.equal(0);
     });
@@ -472,7 +478,7 @@ describe("silence", () => {
       await ethers.provider.send("evm_increaseTime", [24 * 60 * 60]);
       await expect(
         contracts.silence.connect(nonOwner).claimBatch([1, 2, 3])
-      ).to.be.revertedWith("!owner");
+      ).to.be.revertedWith("!tokenOwner");
     });
   });
 
@@ -599,10 +605,120 @@ describe("silence", () => {
         await contracts.lostPoets.balanceOf(contracts.silence.address)
       ).to.equal(1);
 
-      const [owner, tokenId, updated] = await contracts.silence.vows(1);
-      expect(owner).to.equal(poetHolder.address);
+      const [tokenOwner, tokenId, updated] = await contracts.silence.vows(1);
+      expect(tokenOwner).to.equal(poetHolder.address);
       expect(tokenId).to.equal(1025);
       expect(updated).to.equal(block.timestamp);
+    });
+  });
+
+  describe("proposeTransfer", () => {
+    beforeEach(async () => {
+      await mintOrigin(owner, contracts);
+    });
+
+    it("only owner can propose a transfer", async () => {
+      await expect(
+        contracts.silence
+          .connect(nonOwner)
+          .proposeTransfer(nonOwner.address, 100)
+      ).to.be.revertedWith("caller is not the owner");
+    });
+
+    it("adds a transfer to the transfers mapping", async () => {
+      const tx = await contracts.silence
+        .connect(owner)
+        .proposeTransfer(nonOwner.address, 100);
+      const receipt = await tx.wait();
+      const block = await ethers.provider.getBlock(receipt.blockNumber);
+
+      const [to, tokenId, timelock] = await contracts.silence.proposals(1);
+      expect(to).to.equal(nonOwner.address);
+      expect(tokenId).to.equal(100);
+      expect(timelock).to.equal(block.timestamp + 7 * 24 * 60 * 60);
+    });
+
+    it("increments transfer id", async () => {
+      const tx1 = await contracts.silence
+        .connect(owner)
+        .proposeTransfer(nonOwner.address, 100);
+      let receipt = await tx1.wait();
+      let block1 = await ethers.provider.getBlock(receipt.blockNumber);
+
+      const tx2 = await contracts.silence
+        .connect(owner)
+        .proposeTransfer(nonOwner.address, 101);
+      receipt = await tx2.wait();
+      const block2 = await ethers.provider.getBlock(receipt.blockNumber);
+
+      let [to, tokenId, timelock] = await contracts.silence.proposals(1);
+      expect(to).to.equal(nonOwner.address);
+      expect(tokenId).to.equal(100);
+      expect(timelock).to.equal(block1.timestamp + 7 * 24 * 60 * 60);
+
+      [to, tokenId, timelock] = await contracts.silence.proposals(2);
+      expect(to).to.equal(nonOwner.address);
+      expect(tokenId).to.equal(101);
+      expect(timelock).to.equal(block2.timestamp + 7 * 24 * 60 * 60);
+    });
+  });
+
+  describe("executeTransfer", () => {
+    beforeEach(async () => {
+      await mintOrigin(owner, contracts);
+      await contracts.silence
+        .connect(owner)
+        .proposeTransfer(nonOwner.address, 100);
+    });
+
+    it("only owner can execute a transfer", async () => {
+      await expect(
+        contracts.silence.connect(nonOwner).executeTransfer(1)
+      ).to.be.revertedWith("caller is not the owner");
+    });
+
+    it("reverts if proposal does not exist", async () => {
+      await expect(
+        contracts.silence.connect(owner).executeTransfer(0)
+      ).to.be.revertedWith("!proposal");
+    });
+
+    it("reverts if timelock is active", async () => {
+      await expect(
+        contracts.silence.connect(owner).executeTransfer(1)
+      ).to.be.revertedWith("timelock");
+    });
+
+    it("reverts if tokenId is not origin", async () => {
+      await buyPage(owner, contracts);
+      await mintPoet(owner, contracts);
+      await contracts.silence
+        .connect(owner)
+        .proposeTransfer(nonOwner.address, 1025);
+      await ethers.provider.send("evm_increaseTime", [7 * 24 * 60 * 60 + 1]);
+
+      await expect(
+        contracts.silence.connect(owner).executeTransfer(2)
+      ).to.be.revertedWith("!origin");
+    });
+
+    it("executes proposal if timelock is inactive", async () => {
+      expect(
+        await contracts.lostPoets.balanceOf(contracts.silence.address)
+      ).to.equal(1);
+      expect(await contracts.lostPoets.balanceOf(nonOwner.address)).to.equal(0);
+      expect(await contracts.lostPoets.ownerOf(100)).to.equal(
+        contracts.silence.address
+      );
+
+      await ethers.provider.send("evm_increaseTime", [7 * 24 * 60 * 60 + 1]);
+      await contracts.silence.connect(owner).executeTransfer(1);
+
+      expect(
+        await contracts.lostPoets.balanceOf(contracts.silence.address)
+      ).to.equal(0);
+      expect(await contracts.lostPoets.balanceOf(nonOwner.address)).to.equal(1);
+      expect(await contracts.lostPoets.ownerOf(100)).to.equal(nonOwner.address);
     });
   });
 });
