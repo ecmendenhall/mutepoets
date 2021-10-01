@@ -5,6 +5,10 @@ import "@nomiclabs/hardhat-etherscan";
 import "@nomiclabs/hardhat-waffle";
 import "hardhat-gas-reporter";
 import "solidity-coverage";
+import dotenv from "dotenv";
+import { deployLocal, deployTestnet } from "./scripts/deploy";
+
+dotenv.config();
 
 task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
   const accounts = await hre.ethers.getSigners();
@@ -12,6 +16,14 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
   for (const account of accounts) {
     console.log(account.address);
   }
+});
+
+task("deploy:local", "Deploys contracts", async (args, hre) => {
+  await deployLocal(hre.ethers);
+});
+
+task("deploy:testnet", "Deploys contracts", async (args, hre) => {
+  await deployTestnet(hre.ethers);
 });
 
 export default {
@@ -33,6 +45,14 @@ export default {
       url: process.env.ROPSTEN_URL || "",
       accounts:
         process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+    },
+    kovan: {
+      url: process.env.KOVAN_URL || "",
+      accounts: { mnemonic: process.env.KOVAN_MNEMONIC },
+    },
+    rinkeby: {
+      url: process.env.RINKEBY_URL || "",
+      accounts: { mnemonic: process.env.RINKEBY_MNEMONIC },
     },
   },
   gasReporter: {

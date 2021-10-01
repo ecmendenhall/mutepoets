@@ -1,0 +1,9 @@
+{
+  "short_name": "Mute Poets",
+  "name": "So tell me librarian, do you want an army of mute Poets or a Poet who can speak a lot of things?",
+  "icons": [],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#000000",
+  "background_color": "#ffffff"
+}
