@@ -22,16 +22,6 @@ test("renders children", () => {
   expect(content).toBeInTheDocument();
 });
 
-test("renders nav", () => {
-  render(
-    <MemoryRouter>
-      <FullPage subhed="Subhed text">Page content</FullPage>
-    </MemoryRouter>
-  );
-  const nav = screen.getByText(/Claim/i);
-  expect(nav).toBeInTheDocument();
-});
-
 test("renders connect button", () => {
   render(
     <MemoryRouter>

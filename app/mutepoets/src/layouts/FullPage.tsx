@@ -20,6 +20,7 @@ const FullPage = ({ subhed, children }: Props) => {
       </div>
       <div className="my-8">
         <Connect />
+        <Nav />
         {children}
       </div>
       <BlockCounter />

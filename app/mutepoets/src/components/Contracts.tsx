@@ -17,7 +17,7 @@ const ContractItem = ({ name, address, chainId }: Props) => {
     <li key={name} className="my-2">
       {name}:{" "}
       <a
-        className="bg-yellow-50 p-1 font-mono text-sm hover:text-yellow-700"
+        className="bg-gray-100 p-1 font-mono text-sm hover:text-gray-700"
         href={getExplorerAddressLink(address, chainId)}
       >
         {shortenAddress(address)}
@@ -33,19 +33,11 @@ const Contracts = () => {
     <>
       {chainId && (
         <div className="mb-4">
-          <h4 className="font-black font-display text-2xl">Contracts:</h4>
+          <h4 className="font-black font-display uppercase">Contracts</h4>
           <ul className="mb-4">
             <ContractItem
               name="Silence"
               address={config.silence.address}
-              chainId={chainId}
-            />
-          </ul>
-          <h4 className="font-black font-display text-2xl">Tokens:</h4>
-          <ul>
-            <ContractItem
-              name="Lost Poets"
-              address={config.lostPoets.address}
               chainId={chainId}
             />
           </ul>
