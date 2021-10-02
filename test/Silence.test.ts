@@ -429,7 +429,9 @@ describe("silence", () => {
       expect(await contracts.silence.balanceOf(poetHolder.address)).to.equal(0);
 
       await contracts.silence.connect(poetHolder).claim(1);
-      expect(await contracts.silence.balanceOf(poetHolder.address)).to.equal(parseEther("0.000011574074074074"));
+      expect(await contracts.silence.balanceOf(poetHolder.address)).to.equal(
+        parseEther("0.000011574074074074")
+      );
 
       await ethers.provider.send("evm_increaseTime", [24 * 60 * 60]);
       await contracts.silence.connect(poetHolder).claim(1);

@@ -2,13 +2,16 @@ import { BigNumber } from "@ethersproject/bignumber";
 import { id } from "@ethersproject/hash";
 import { formatUnits, parseEther } from "@ethersproject/units";
 import {
+  addressEqual,
   useContractCall,
   useContractCalls,
   useContractFunction,
   useEthers,
   useTokenBalance,
 } from "@usedapp/core";
+import { ethers } from "ethers";
 import { useEffect, useState } from "react";
+import { parseIsolatedEntityName } from "typescript";
 import { getConfig } from "../config/contracts";
 
 interface PoetAttribute {
@@ -218,6 +221,53 @@ export function useClaimableSilence(account: string | null | undefined) {
   }, parseEther("0"));
 }
 
+export function usePoetsByAccount(account: string | null | undefined) {
+  const { library, chainId } = useEthers();
+  const config = getConfig(chainId);
+  const [poetIds, setPoetIds] = useState<number[] | undefined>();
+  const token = new ethers.Contract(
+    config.lostPoets.address,
+    config.lostPoets.abi,
+    library
+  );
+  const poets = usePoets(poetIds || []);
+
+  useEffect(() => {
+    const loadTokenIds = async () => {
+      if (account) {
+        const sentLogs = await token.queryFilter(
+          token.filters.Transfer(account, null)
+        );
+        const receivedLogs = await token.queryFilter(
+          token.filters.Transfer(null, account)
+        );
+        const logs = sentLogs
+          .concat(receivedLogs)
+          .sort(
+            (a, b) =>
+              a.blockNumber - b.blockNumber ||
+              a.transactionIndex - b.transactionIndex
+          );
+        const owned = new Set<string>();
+        for (const log of logs) {
+          if (log.args) {
+            const { from, to, tokenId } = log.args;
+            if (addressEqual(to, account)) {
+              owned.add(tokenId.toString());
+            } else if (addressEqual(from, account)) {
+              owned.delete(tokenId.toString());
+            }
+          }
+        }
+        setPoetIds(Array.from(owned).map((id) => parseInt(id)));
+      }
+    };
+    loadTokenIds();
+  }, [account]);
+
+  return poets;
+}
+
 export function useSilence(account: string | null | undefined) {
   const { chainId } = useEthers();
   const config = getConfig(chainId);
@@ -231,6 +281,7 @@ export function useVows() {
   const config = getConfig(chainId);
   const silentPoetsCount = usePoetBalance(config.silence.address);
   const vows = useAllVows();
+  console.log(vows);
   const isId = (id: number | undefined): id is number => {
     return !!id;
   };

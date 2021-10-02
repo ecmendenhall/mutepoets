@@ -132,9 +132,9 @@ contract Silence is ERC20, ReentrancyGuard, Ownable, IERC721Receiver {
         if (updated == 0) {
             return 0;
         } else {
-          uint256 duration = (block.timestamp - vows[vowId].updated);
-          uint256 accrued = duration * 1e18 / (1 days);
-          return accrued;
+            uint256 duration = (block.timestamp - vows[vowId].updated);
+            uint256 accrued = (duration * 1e18) / (1 days);
+            return accrued;
         }
     }
 

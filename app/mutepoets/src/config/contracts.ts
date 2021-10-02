@@ -9,6 +9,7 @@ const config = {
         "function balanceOf(address owner) returns (uint256)",
         "function tokenURI(uint256 tokenId) returns (string)",
         "function totalSupply() returns (uint256)",
+        "event Transfer(address indexed from, address indexed to, uint256 indexed tokenId)",
       ]),
     },
     silence: {
@@ -21,6 +22,7 @@ const config = {
         "function claimBatch(uint256[] memory vowIds)",
         "function claimable(uint256 vowId) returns (uint256)",
         "function getVowsByAddress(address tokenOwner) returns (uint256[] memory)",
+        "function vows(uint256 vowId) returns (address, uint256, uint256)",
         "function balanceOf(address owner) returns (uint256)",
       ]),
     },
