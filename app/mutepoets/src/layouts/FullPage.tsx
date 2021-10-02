@@ -12,7 +12,7 @@ const FullPage = ({ subhed, children }: Props) => {
     <div className="p-16 min-h-screen bg-gray-200">
       <div className="mb-4">
         <h1 className="font-display uppercase tracking-wider text-gray-700 font-bold text-4xl lg:text-6xl text-center">
-          Mute Poets
+          Silence
         </h1>
         <div className="font-body text-center text-l">
           <p className="italic">{subhed}</p>

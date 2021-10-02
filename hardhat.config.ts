@@ -19,7 +19,7 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
 });
 
 task("deploy:local", "Deploys contracts", async (args, hre) => {
-  await deployLocal(hre.ethers);
+  await deployLocal(hre.ethers, hre.network);
 });
 
 task("deploy:testnet", "Deploys contracts", async (args, hre) => {

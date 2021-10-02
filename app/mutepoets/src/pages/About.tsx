@@ -20,7 +20,7 @@ const About = () => {
             </div>
             <div className="mb-4">
               <h4 className="font-black font-display text-l uppercase mb-2">
-                Created by
+                Creator
               </h4>
               <div className="w-32 bg-gray-100 text-center">
                 <img

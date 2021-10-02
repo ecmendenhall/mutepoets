@@ -5,7 +5,7 @@ interface Props {
 }
 
 const Button = ({ color, children, onClick }: Props) => {
-  const buttonClass = `font-body text-xl px-4 py-2 shadow bg-${color}-300 text-${color}-800 hover:bg-${color}-400`;
+  const buttonClass = `font-display font-black uppercase text-l px-4 py-2 shadow bg-${color}-100 text-${color}-800 hover:bg-${color}-300`;
 
   return (
     <button className={buttonClass} onClick={onClick}>

@@ -1,8 +1,9 @@
-import { Contract, ethers } from "ethers";
+import { BigNumber, Contract, ethers } from "ethers";
 import { HardhatEthersHelpers } from "@nomiclabs/hardhat-ethers/types";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { MockERC20, LostPoetPages, LostPoets, Silence } from "../typechain";
 import { parseEther } from "ethers/lib/utils";
+import { Network } from "hardhat/types";
 
 type Ethers = typeof ethers & HardhatEthersHelpers;
 
@@ -106,6 +107,14 @@ const setPrefixURI = async (owner: SignerWithAddress, contracts: Contracts) => {
     .setPrefixURI("https://lostpoets.api.manifoldxyz.dev/metadata/");
 };
 
+const setEtherBalance = async (
+  account: string,
+  amount: string,
+  network: Network
+) => {
+  await network.provider.send("hardhat_setBalance", [account, amount]);
+};
+
 async function deployMultiCall(ethers: Ethers) {
   const Multicall = await ethers.getContractFactory("Multicall");
   const multicall = await Multicall.deploy();
@@ -172,7 +181,7 @@ export async function deployTestnet(ethers: Ethers) {
   await setPrefixURI(owner, contracts);
 }
 
-export async function deployLocal(ethers: Ethers) {
+export async function deployLocal(ethers: Ethers, network: Network) {
   const [owner] = await ethers.getSigners();
 
   await deployMultiCall(ethers);
@@ -215,5 +224,12 @@ export async function deployLocal(ethers: Ethers) {
       1042, 1043,
     ],
     contracts
+  );
+
+  console.log("Setting Ether balance...");
+  await setEtherBalance(
+    "0xBA713FE0Cf19B0CEa404b9c1E805cB2f95bE04FF",
+    parseEther("10").toHexString(),
+    network
   );
 }

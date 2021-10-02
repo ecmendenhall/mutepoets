@@ -9,26 +9,12 @@ import {
   useEthers,
   useTokenBalance,
 } from "@usedapp/core";
+import { Contract } from "@usedapp/core/node_modules/ethers";
 import { ethers } from "ethers";
 import { useEffect, useState } from "react";
 import { parseIsolatedEntityName } from "typescript";
 import { getConfig } from "../config/contracts";
-
-interface PoetAttribute {
-  trait_type: string;
-  value: string;
-}
-
-interface Poet {
-  name: string;
-  description: string;
-  image: string;
-  image_url: string;
-  attributes: PoetAttribute[];
-}
-
-type MetadataURI = string;
-type Vow = [string, BigNumber, BigNumber];
+import { Poet, Vow } from "../types";
 
 const range = (i: number) => {
   return Array.from({ length: i }, (_x, i) => i);
@@ -46,10 +32,10 @@ export function usePoetBalance(account: string | null | undefined) {
   return useTokenBalance(config.lostPoets.address, account);
 }
 
-const loadPoetMetadata = async (metadataURI: string) => {
+const loadPoetMetadata = async (metadataURI: string, id: number) => {
   const response = await fetch(metadataURI);
   const data = await response.json();
-  return data;
+  return { tokenId: id, ...data };
 };
 
 export function usePoet(id: number | undefined) {
@@ -68,13 +54,15 @@ export function usePoet(id: number | undefined) {
 
   useEffect(() => {
     const loadData = async () => {
-      try {
-        setLoading(true);
-        const metadata = await loadPoetMetadata(tokenURI);
-        setData(metadata);
-        setLoading(false);
-      } catch (error) {
-        setError(true);
+      if (id) {
+        try {
+          setLoading(true);
+          const metadata = await loadPoetMetadata(tokenURI, id);
+          setData(metadata);
+          setLoading(false);
+        } catch (error) {
+          setError(true);
+        }
       }
     };
     loadData();
@@ -103,9 +91,9 @@ export function usePoets(ids: number[]) {
       try {
         setLoading(true);
         const metadata = await Promise.all(
-          poetsResponse.map(async (res) => {
+          poetsResponse.map(async (res, i) => {
             const [tokenURI] = res;
-            return await loadPoetMetadata(tokenURI);
+            return await loadPoetMetadata(tokenURI, ids[i]);
           })
         );
         setData(metadata);
@@ -124,7 +112,16 @@ export function usePoets(ids: number[]) {
 export function useAllVows() {
   const { chainId } = useEthers();
   const config = getConfig(chainId);
-  const vowCalls = range(100).map((id: number) => {
+  const [vowCount] = useContractCall({
+    abi: config.silence.abi,
+    address: config.silence.address,
+    method: "vowCount",
+    args: [],
+  }) ?? [BigNumber.from(0)];
+  const vowIds = range(vowCount.add(1).toNumber())
+    .slice(1)
+    .map((n) => BigNumber.from(n));
+  const vowCalls = vowIds.map((id: BigNumber) => {
     return {
       abi: config.silence.abi,
       address: config.silence.address,
@@ -133,10 +130,11 @@ export function useAllVows() {
     };
   });
   const vowsResponse = (useContractCalls(vowCalls) ?? []) as Vow[];
-  const vowData = vowsResponse.map((vow: Vow) => {
+  const vowData = vowsResponse.map((vow: Vow, i: number) => {
     if (vow) {
       const [tokenOwner, tokenId, updated] = vow;
       return {
+        vowId: vowIds[i],
         tokenOwner,
         tokenId,
         updated,
@@ -165,10 +163,11 @@ export function useVowsByAccount(account: string | null | undefined) {
     };
   });
   const vowsResponse = (useContractCalls(vowCalls) ?? []) as Vow[];
-  const vowData = vowsResponse.map((vow: Vow) => {
+  const vowData = vowsResponse.map((vow: Vow, i: number) => {
     if (vow) {
       const [tokenOwner, tokenId, updated] = vow;
       return {
+        vowId: vows[i],
         tokenOwner,
         tokenId,
         updated,
@@ -221,7 +220,7 @@ export function useClaimableSilence(account: string | null | undefined) {
   }, parseEther("0"));
 }
 
-export function usePoetsByAccount(account: string | null | undefined) {
+export function useAllPoetsByAccount(account: string | null | undefined) {
   const { library, chainId } = useEthers();
   const config = getConfig(chainId);
   const [poetIds, setPoetIds] = useState<number[] | undefined>();
@@ -234,7 +233,9 @@ export function usePoetsByAccount(account: string | null | undefined) {
 
   useEffect(() => {
     const loadTokenIds = async () => {
-      if (account) {
+      if (account && library && token) {
+        console.log(account);
+        console.log(token);
         const sentLogs = await token.queryFilter(
           token.filters.Transfer(account, null)
         );
@@ -263,14 +264,43 @@ export function usePoetsByAccount(account: string | null | undefined) {
       }
     };
     loadTokenIds();
-  }, [account]);
+  }, [account, library, config]);
 
   return poets;
 }
 
-export function useSilence(account: string | null | undefined) {
+export function usePoetsByAccount(account: string | null | undefined) {
   const { chainId } = useEthers();
   const config = getConfig(chainId);
+  const vows = useVowsByAccount(account);
+  const { loading: loadingUserPoets, data: userPoets } =
+    useAllPoetsByAccount(account);
+  const { loading: loadingAllSilentPoets, data: allSilentPoets } =
+    useAllPoetsByAccount(config.silence.address);
+
+  const silentPoets = allSilentPoets?.filter((poet) => {
+    return vows.some((vow) => vow?.tokenId.toNumber() == poet.tokenId);
+  });
+
+  const muteCalls = (userPoets || []).map((poet: Poet) => {
+    return {
+      abi: config.lostPoets.abi,
+      address: config.lostPoets.address,
+      method: "getWordCount",
+      args: [poet.tokenId],
+    };
+  });
+  const muteResponse = (useContractCalls(muteCalls) ?? []) as BigNumber[][];
+  const mutePoets = userPoets?.filter((_poet, i) => {
+    const res = muteResponse[i];
+    return res && res[0].eq(0);
+  });
+
+  const loading = loadingUserPoets || loadingAllSilentPoets;
+  return { loading, userPoets, mutePoets, silentPoets };
+}
+
+export function useSilence(account: string | null | undefined) {
   const silenceBalance = useSilenceBalance(account);
   const totalClaimableSilence = useClaimableSilence(account);
   return { silenceBalance, totalClaimableSilence };
@@ -281,11 +311,31 @@ export function useVows() {
   const config = getConfig(chainId);
   const silentPoetsCount = usePoetBalance(config.silence.address);
   const vows = useAllVows();
-  console.log(vows);
   const isId = (id: number | undefined): id is number => {
     return !!id;
   };
   const poetIds = vows.map((vow) => vow?.tokenId.toNumber()).filter(isId);
   const silentPoets = usePoets(poetIds);
   return { silentPoetsCount, vows, silentPoets };
+}
+
+export function useApprove() {
+  const { chainId } = useEthers();
+  const config = getConfig(chainId);
+  const contract = new Contract(config.lostPoets.address, config.lostPoets.abi);
+  return useContractFunction(contract, "approve");
+}
+
+export function useTakeVow() {
+  const { chainId } = useEthers();
+  const config = getConfig(chainId);
+  const contract = new Contract(config.silence.address, config.silence.abi);
+  return useContractFunction(contract, "takeVow");
+}
+
+export function useBreakVow() {
+  const { chainId } = useEthers();
+  const config = getConfig(chainId);
+  const contract = new Contract(config.silence.address, config.silence.abi);
+  return useContractFunction(contract, "breakVow");
 }
