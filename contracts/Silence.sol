@@ -26,8 +26,8 @@ contract Silence is ERC20, ReentrancyGuard, Ownable, IERC721Receiver {
     mapping(uint256 => uint256) public vowByTokenId;
     mapping(uint256 => TokenTransfer) public proposals;
 
-    uint256 private nextTokenTransferId;
-    uint256 private nextVowId;
+    uint256 public proposalCount;
+    uint256 public vowCount;
 
     constructor(address _poets) ERC20("Silence", "SILENCE") {
         poets = IPoets(_poets);
@@ -77,10 +77,10 @@ contract Silence is ERC20, ReentrancyGuard, Ownable, IERC721Receiver {
     }
 
     function proposeTransfer(address to, uint256 tokenId) public onlyOwner {
-        nextTokenTransferId++;
-        proposals[nextTokenTransferId].to = to;
-        proposals[nextTokenTransferId].tokenId = tokenId;
-        proposals[nextTokenTransferId].timelock = block.timestamp + 7 days;
+        proposalCount++;
+        proposals[proposalCount].to = to;
+        proposals[proposalCount].tokenId = tokenId;
+        proposals[proposalCount].timelock = block.timestamp + 7 days;
     }
 
     function executeTransfer(uint256 id) public onlyOwner {
@@ -119,17 +119,23 @@ contract Silence is ERC20, ReentrancyGuard, Ownable, IERC721Receiver {
 
     function _takeVow(address tokenOwner, uint256 tokenId) internal {
         require(poets.getWordCount(tokenId) == 0, "!mute");
-        nextVowId++;
-        vows[nextVowId].tokenOwner = tokenOwner;
-        vows[nextVowId].tokenId = tokenId;
-        vows[nextVowId].updated = block.timestamp;
-        vowsByAddress[tokenOwner].push(nextVowId);
-        vowByTokenId[tokenId] = nextVowId;
+        vowCount++;
+        vows[vowCount].tokenOwner = tokenOwner;
+        vows[vowCount].tokenId = tokenId;
+        vows[vowCount].updated = block.timestamp;
+        vowsByAddress[tokenOwner].push(vowCount);
+        vowByTokenId[tokenId] = vowCount;
     }
 
     function _claimableSilence(uint256 vowId) internal view returns (uint256) {
-        uint256 duration = (block.timestamp - vows[vowId].updated) / (1 days);
-        return duration * 1e18;
+        uint256 updated = vows[vowId].updated;
+        if (updated == 0) {
+            return 0;
+        } else {
+          uint256 duration = (block.timestamp - vows[vowId].updated);
+          uint256 accrued = duration * 1e18 / (1 days);
+          return accrued;
+        }
     }
 
     function _claimSilence(uint256 vowId) internal returns (uint256) {
