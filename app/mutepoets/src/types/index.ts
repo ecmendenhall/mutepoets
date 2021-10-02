@@ -6,12 +6,19 @@ export interface PoetAttribute {
 }
 
 export interface Poet {
-  tokenId: number;
+  tokenId: BigNumber;
   name: string;
   description: string;
   image: string;
   image_url: string;
   attributes: PoetAttribute[];
+}
+
+export interface VowData {
+  vowId: BigNumber;
+  tokenOwner: string;
+  tokenId: BigNumber;
+  updated: BigNumber;
 }
 
 export type MetadataURI = string;

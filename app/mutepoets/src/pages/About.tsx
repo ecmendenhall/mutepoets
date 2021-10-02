@@ -6,7 +6,7 @@ const About = () => {
     <FullPage subhed='"So tell me librarian, do you want an army of mute Poets or a Poet who can speak a lot of things?"'>
       <div className="font-body text-l">
         <div className="flex flex-col md:flex-row justify-evenly">
-          <div className="mb-4 flex flex-col justify-between">
+          <div className="mb-4 flex flex-col">
             <div className="mb-4">
               <Contracts />
             </div>
@@ -16,6 +16,7 @@ const About = () => {
               </h4>
               <ul>
                 <li>Discord</li>
+                <li>Snapshot</li>
               </ul>
             </div>
             <div className="mb-4">
@@ -27,11 +28,15 @@ const About = () => {
                   className="shadow"
                   src="https://d1xxei964ioe0z.cloudfront.net/full/5e9323c7b2fef377487d876641230c20c7dccb8daaa4ab23ee1663186ee5467d.png"
                 />
-                <p className="py-2">Poet #6660</p>
+                <p className="py-2">
+                  <a href="https://twitter.com/ecmendenhall" target="_blank">
+                    Poet #6660
+                  </a>
+                </p>
               </div>
             </div>
           </div>
-          <div className="md:w-1/3 mb-4">
+          <div className="md:w-1/3 lg:w-1/4 mb-4">
             <h4 className="font-black font-display text-l uppercase mb-2">
               How it works
             </h4>
@@ -51,6 +56,43 @@ const About = () => {
             <p className="mb-4">
               Your Poet may have no words, but SILENCE gives them a voice: we
               will use it to decide how to play the game together.
+            </p>
+            <p className="mb-4">
+              SILENCE grants access to Discord, and determines voting power on
+              Snapshot.
+            </p>
+          </div>
+          <div className="md:w-1/3 lg:w-1/4 mb-4">
+            <h4 className="font-black font-display text-l uppercase mb-2">
+              What about origins?
+            </h4>
+            <p className="mb-4">
+              If we are lucky enough to receive an Origin, we will use SILENCE
+              to choose a path together.
+            </p>
+            <p className="mb-4">
+              If the Silence contract receives an Origin Poet, the contract
+              owner address may propose a transfer and execute it after a seven
+              day waiting period. Only Origins may be transferred in this
+              manner.
+            </p>
+            <p className="mb-4">
+              The intent of this mechanism is to transfer any Origins to a new
+              contract that can carry out the actions that our silent Poets
+              collectively decide.
+            </p>
+            <h4 className="font-black font-display text-l uppercase mb-2">
+              Important notes
+            </h4>
+            <p className="mb-4">
+              This project is about cooperating with each other, exploring the
+              world Pak created, and creating a myth of our own. If you want to
+              make money, look elsewhere. If you want to write poetry together,
+              take the vow.
+            </p>
+            <p className="mb-4">
+              The Silence contract is simple, well tested, and unaudited. Use
+              this app at your own risk.
             </p>
           </div>
         </div>

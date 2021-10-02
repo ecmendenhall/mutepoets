@@ -203,16 +203,19 @@ export async function deployLocal(ethers: Ethers, network: Network) {
   await setPrefixURI(owner, contracts);
 
   console.log("Buying pages...");
-  await buyPages(owner, 20, contracts);
+  await buyPages(owner, 100, contracts);
 
   console.log("Minting poets...");
-  await mintPoets(owner, 20, contracts);
+  await mintPoets(owner, 100, contracts);
 
   console.log("Sending poets...");
   await sendPoets(
     owner,
     "0xBA713FE0Cf19B0CEa404b9c1E805cB2f95bE04FF",
-    [1025, 1026, 1027, 1028, 1029],
+    [
+      1025, 1026, 1027, 1028, 1029, 1030, 1031, 1032, 1033, 1034, 1035, 1036,
+      1037, 1038, 1039, 1040, 1041, 1042, 1043, 1044, 1045,
+    ],
     contracts
   );
 
@@ -220,8 +223,9 @@ export async function deployLocal(ethers: Ethers, network: Network) {
   await pledgePoets(
     owner,
     [
-      1030, 1031, 1032, 1033, 1034, 1035, 1036, 1037, 1038, 1039, 1040, 1041,
-      1042, 1043,
+      1046, 1047, 1048, 1049, 1050, 1051, 1052, 1053, 1054, 1055, 1056, 1057,
+      1058, 1059, 1060, 1061, 1062, 1063, 1064, 1065, 1066, 1067, 1068, 1069,
+      1070, 1071, 1072, 1073, 1074, 1075, 1076, 1077, 1078, 1079, 1080,
     ],
     contracts
   );

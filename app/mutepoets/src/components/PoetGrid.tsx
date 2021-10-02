@@ -1,4 +1,5 @@
 import { Poet } from "../types";
+import Grid from "./Grid";
 
 type PlaceChildren = "right" | "left";
 
@@ -11,7 +12,7 @@ interface Props {
 
 const PoetGrid = ({ loading, poets, children, placeChildren }: Props) => {
   return (
-    <div className="grid gap-0 grid-cols-3 md:grid-cols-5 lg:grid-cols-7 mb-8">
+    <Grid>
       {placeChildren == "left" && children}
       {!loading &&
         poets &&
@@ -25,7 +26,7 @@ const PoetGrid = ({ loading, poets, children, placeChildren }: Props) => {
           );
         })}
       {placeChildren == "right" && children}
-    </div>
+    </Grid>
   );
 };
 
