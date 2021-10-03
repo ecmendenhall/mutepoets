@@ -33,11 +33,15 @@ const BreakVow = ({ loading, poets }: Props) => {
 
   return (
     <div>
-      <PoetGrid placeChildren="left" loading={loading} poets={poets || []}>
-        <Button color="gray" onClick={breakVow}>
-          Break the vow
-        </Button>
-      </PoetGrid>
+      {loading ? (
+        "Loading..."
+      ) : (
+        <PoetGrid placeChildren="left" loading={loading} poets={poets || []}>
+          <Button color="gray" onClick={breakVow}>
+            Break the vow
+          </Button>
+        </PoetGrid>
+      )}
     </div>
   );
 };

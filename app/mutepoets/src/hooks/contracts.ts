@@ -42,7 +42,7 @@ export function usePoet(id: BigNumber | undefined) {
   const { chainId } = useEthers();
   const config = getConfig(chainId);
   const [data, setData] = useState<Poet | undefined>();
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [tokenURI] =
     useContractCall({
@@ -56,7 +56,6 @@ export function usePoet(id: BigNumber | undefined) {
     const loadData = async () => {
       if (id) {
         try {
-          setLoading(true);
           const metadata = await loadPoetMetadata(tokenURI, id);
           setData(metadata);
           setLoading(false);
@@ -66,7 +65,7 @@ export function usePoet(id: BigNumber | undefined) {
       }
     };
     loadData();
-  }, [tokenURI]);
+  }, [id, tokenURI]);
   return { data, loading, error };
 }
 
@@ -74,7 +73,7 @@ export function usePoets(ids: BigNumber[]) {
   const { chainId } = useEthers();
   const config = getConfig(chainId);
   const [data, setData] = useState<Poet[] | undefined>();
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
   const poetCalls = ids.map((id: BigNumber) => {
@@ -89,24 +88,32 @@ export function usePoets(ids: BigNumber[]) {
 
   useEffect(() => {
     const loadData = async () => {
-      try {
-        setLoading(true);
-        const metadata = await Promise.all(
-          poetsResponse.map(async (res, i) => {
-            const [tokenURI] = res;
-            return await loadPoetMetadata(tokenURI, ids[i]);
-          })
-        );
-        setData(metadata);
-        setLoading(false);
-      } catch (error) {
-        setError(true);
+      if (poetsResponse.find((i) => i !== undefined)) {
+        try {
+          const metadata = await Promise.all(
+            poetsResponse.map(async (res, i) => {
+              const [tokenURI] = res;
+              return await loadPoetMetadata(tokenURI, ids[i]);
+            })
+          );
+          setData(metadata);
+          setLoading(false);
+        } catch (error) {
+          console.log(error);
+          setError(true);
+        }
       }
     };
-    if (!data && ids.length > 0) {
+    if (ids.length > 0) {
       loadData();
     }
-  }, [ids]);
+  }, [
+    JSON.stringify(ids),
+    JSON.stringify(poetsResponse),
+    setData,
+    setLoading,
+    setError,
+  ]);
   return { data, loading, error };
 }
 
@@ -242,20 +249,25 @@ export function useClaimableSilence(account: string | null | undefined) {
   return { totalClaimableSilence, claimableByVow };
 }
 
-export function useAllPoetsByAccount(account: string | null | undefined) {
+export function useAllPoetsByAccount(
+  account: string | null | undefined,
+  dependencies: any[]
+) {
   const { library, chainId } = useEthers();
   const config = getConfig(chainId);
   const [poetIds, setPoetIds] = useState<BigNumber[] | undefined>();
-  const token = new ethers.Contract(
-    config.lostPoets.address,
-    config.lostPoets.abi,
-    library
-  );
+
   const poets = usePoets(poetIds || []);
 
   useEffect(() => {
+    console.log("running!");
     const loadTokenIds = async () => {
-      if (account && library && token) {
+      if (account && library) {
+        const token = new ethers.Contract(
+          config.lostPoets.address,
+          config.lostPoets.abi,
+          library
+        );
         const sentLogs = await token.queryFilter(
           token.filters.Transfer(account, null)
         );
@@ -285,7 +297,7 @@ export function useAllPoetsByAccount(account: string | null | undefined) {
       }
     };
     loadTokenIds();
-  }, [account, library, config]);
+  }, [account, library, ...dependencies]);
 
   return poets;
 }
@@ -294,10 +306,12 @@ export function usePoetsByAccount(account: string | null | undefined) {
   const { chainId } = useEthers();
   const config = getConfig(chainId);
   const vows = useVowsByAccount(account);
-  const { loading: loadingUserPoets, data: userPoets } =
-    useAllPoetsByAccount(account);
+  const { loading: loadingUserPoets, data: userPoets } = useAllPoetsByAccount(
+    account,
+    [JSON.stringify(vows)]
+  );
   const { loading: loadingAllSilentPoets, data: allSilentPoets } =
-    useAllPoetsByAccount(config.silence.address);
+    useAllPoetsByAccount(config.silence.address, [JSON.stringify(vows)]);
 
   const silentPoets = allSilentPoets?.filter((poet) => {
     return vows.some((vow) => vow?.tokenId.eq(poet.tokenId));
@@ -334,7 +348,6 @@ export function useVows() {
   const silentPoetsCount = usePoetBalance(config.silence.address);
   const vows = useAllVows();
   const poetIds = vows.map((vow) => vow.tokenId).filter((id) => !id.eq(0));
-  console.log(poetIds);
   const silentPoets = usePoets(poetIds);
   return { silentPoetsCount, vows, silentPoets };
 }

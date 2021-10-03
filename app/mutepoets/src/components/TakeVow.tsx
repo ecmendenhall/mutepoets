@@ -32,11 +32,15 @@ const TakeVow = ({ loading, poets }: Props) => {
 
   return (
     <div>
-      <PoetGrid placeChildren="right" loading={loading} poets={poets || []}>
-        <Button color="gray" onClick={takeVow}>
-          Take the vow
-        </Button>
-      </PoetGrid>
+      {loading ? (
+        "Loading..."
+      ) : (
+        <PoetGrid placeChildren="right" loading={loading} poets={poets || []}>
+          <Button color="gray" onClick={takeVow}>
+            Take the vow
+          </Button>
+        </PoetGrid>
+      )}
     </div>
   );
 };

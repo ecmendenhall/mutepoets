@@ -12,6 +12,21 @@ const About = () => {
             </div>
             <div className="mb-4">
               <h4 className="font-black font-display text-l uppercase mb-2">
+                Code
+              </h4>
+              <ul>
+                <li>
+                  <a
+                    href="https://github.com/ecmendenhall/mutepoets"
+                    target="_blank"
+                  >
+                    Github
+                  </a>
+                </li>
+              </ul>
+            </div>
+            <div className="mb-4">
+              <h4 className="font-black font-display text-l uppercase mb-2">
                 Community
               </h4>
               <ul>
@@ -21,9 +36,9 @@ const About = () => {
             </div>
             <div className="mb-4">
               <h4 className="font-black font-display text-l uppercase mb-2">
-                Creator
+                Created by
               </h4>
-              <div className="w-32 bg-gray-100 text-center">
+              <div className="w-48 bg-gray-100 text-center">
                 <img
                   className="shadow"
                   src="https://d1xxei964ioe0z.cloudfront.net/full/5e9323c7b2fef377487d876641230c20c7dccb8daaa4ab23ee1663186ee5467d.png"
@@ -86,9 +101,9 @@ const About = () => {
             </h4>
             <p className="mb-4">
               This project is about cooperating with each other, exploring the
-              world Pak created, and creating a myth of our own. If you want to
-              make money, look elsewhere. If you want to write poetry together,
-              take the vow.
+              world Pak has built, and creating a myth of our own. If you want
+              to make money, look elsewhere. If you want to write poetry
+              together, take the vow.
             </p>
             <p className="mb-4">
               The Silence contract is simple, well tested, and unaudited. Use

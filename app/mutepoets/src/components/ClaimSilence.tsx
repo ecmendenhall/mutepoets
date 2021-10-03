@@ -64,49 +64,53 @@ const ClaimSilence = ({
 
   return (
     <Grid>
-      <div className="flex flex-col place-content-center bg-gray-100 shadow p-4">
-        <p className="font-l text-center uppercase">
-          {silenceBalance && roundEther(silenceBalance)}
-          <p className="font-black font-display font-l text-center uppercase">
-            SILENCE
-          </p>
-        </p>
-      </div>
-      {!loading &&
-        poets &&
-        poets.map((poet) => {
-          return (
-            <div className="bg-gray-100 text-center shadow" key={poet.name}>
-              <div className="group relative flex flex-col place-content-center place-items-end">
-                <img className="object-cover" src={poet.image_url} />
-                <div className="hidden group-hover:block cursor-pointer absolute bg-gray-50 opacity-80 w-full p-2">
-                  {roundEther(
-                    getClaimableAmountByPoetId(
-                      poet.tokenId,
-                      claimableByVow,
-                      vows
-                    )
-                  )}
-                  <p className="font-black font-display font-l text-center uppercase">
-                    Claimable
-                  </p>
+      {loading ? (
+        "Loading..."
+      ) : (
+        <>
+          <div className="flex flex-col place-content-center bg-gray-100 shadow p-4">
+            <p className="font-l text-center uppercase">
+              {silenceBalance && roundEther(silenceBalance)}
+              <p className="font-black font-display font-l text-center uppercase">
+                SILENCE
+              </p>
+            </p>
+          </div>
+          {poets &&
+            poets.map((poet) => {
+              return (
+                <div className="bg-gray-100 text-center shadow" key={poet.name}>
+                  <div className="group relative flex flex-col place-content-center place-items-end">
+                    <img className="object-cover" src={poet.image_url} />
+                    <div className="hidden group-hover:block cursor-pointer absolute bg-gray-50 opacity-80 w-full p-2">
+                      {roundEther(
+                        getClaimableAmountByPoetId(
+                          poet.tokenId,
+                          claimableByVow,
+                          vows
+                        )
+                      )}
+                      <p className="font-black font-display font-l text-center uppercase">
+                        Claimable
+                      </p>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
-          );
-        })}
-      <div className="flex flex-col place-content-center bg-gray-100 shadow p-4">
-        <p className="font-l text-center">
-          {roundEther(totalClaimableSilence)}
-          <p className="font-black font-display font-l text-center uppercase">
-            Total
-          </p>
-        </p>
-      </div>
-      <Button color="gray" onClick={claimAll}>
-        Claim all
-      </Button>
-      {JSON.stringify(claimAllState)}
+              );
+            })}
+          <div className="flex flex-col place-content-center bg-gray-100 shadow p-4">
+            <p className="font-l text-center">
+              {roundEther(totalClaimableSilence)}
+              <p className="font-black font-display font-l text-center uppercase">
+                Total
+              </p>
+            </p>
+          </div>
+          <Button color="gray" onClick={claimAll}>
+            Claim all
+          </Button>
+        </>
+      )}
     </Grid>
   );
 };
