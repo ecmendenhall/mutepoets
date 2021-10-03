@@ -6,6 +6,7 @@ import { useApprove, useTakeVow } from "../hooks/contracts";
 import { Poet } from "../types";
 import Button from "./Button";
 import PoetGrid from "./PoetGrid";
+import SelectPoet from "./SelectPoet";
 
 interface Props {
   loading: boolean;
@@ -35,11 +36,11 @@ const TakeVow = ({ loading, poets }: Props) => {
       {loading ? (
         "Loading..."
       ) : (
-        <PoetGrid placeChildren="right" loading={loading} poets={poets || []}>
+        <SelectPoet placeChildren="right" loading={loading} poets={poets || []}>
           <Button color="gray" onClick={takeVow}>
             Take the vow
           </Button>
-        </PoetGrid>
+        </SelectPoet>
       )}
     </div>
   );

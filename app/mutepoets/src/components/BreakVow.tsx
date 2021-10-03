@@ -5,6 +5,7 @@ import { useBreakVow, useVowsByAccount } from "../hooks/contracts";
 import { Poet } from "../types";
 import Button from "./Button";
 import PoetGrid from "./PoetGrid";
+import SelectPoet from "./SelectPoet";
 
 interface Props {
   loading: boolean;
@@ -36,11 +37,11 @@ const BreakVow = ({ loading, poets }: Props) => {
       {loading ? (
         "Loading..."
       ) : (
-        <PoetGrid placeChildren="left" loading={loading} poets={poets || []}>
+        <SelectPoet placeChildren="left" loading={loading} poets={poets || []}>
           <Button color="gray" onClick={breakVow}>
             Break the vow
           </Button>
-        </PoetGrid>
+        </SelectPoet>
       )}
     </div>
   );
