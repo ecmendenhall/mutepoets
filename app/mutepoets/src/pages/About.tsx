@@ -38,16 +38,18 @@ const About = () => {
               <h4 className="font-black font-display text-l uppercase mb-2">
                 Created by
               </h4>
-              <div className="w-48 bg-gray-100 text-center">
-                <img
-                  className="shadow"
-                  src="https://d1xxei964ioe0z.cloudfront.net/full/5e9323c7b2fef377487d876641230c20c7dccb8daaa4ab23ee1663186ee5467d.png"
-                />
-                <p className="py-2">
-                  <a href="https://twitter.com/ecmendenhall" target="_blank">
-                    Poet #6660
-                  </a>
-                </p>
+              <div className="w-36 xl:w-48 bg-gray-100 text-center shadow">
+                <a href="https://twitter.com/ecmendenhall" target="_blank">
+                  <div className="group relative flex flex-col place-content-center cursor-pointer">
+                    <img
+                      className="object-cover"
+                      src="https://d1xxei964ioe0z.cloudfront.net/full/5e9323c7b2fef377487d876641230c20c7dccb8daaa4ab23ee1663186ee5467d.png"
+                    />
+                    <div className="hidden group-hover:block absolute text-white bg-gray-900 w-full bottom-4 p-2 xl:p-4">
+                      Poet #6660
+                    </div>
+                  </div>
+                </a>
               </div>
             </div>
           </div>
@@ -61,12 +63,16 @@ const About = () => {
               transferred from your wallet to the Silence contract.
             </p>
             <p className="mb-4">
-              You may claim 1 SILENCE token per day, per silent poet. You must
-              claim SILENCE from the address used to take the vow.
+              You may claim at least 1 SILENCE token per day, per silent poet.
+              You must claim SILENCE from the address used to take the vow.
             </p>
             <p className="mb-4">
               Silent poets may break their vow at any time. They will be
               transferred back to your wallet, along with any accrued SILENCE.
+            </p>
+            <p className="mb-4">
+              Unbroken vows accrue additional SILENCE over time, up to a maximum
+              of 5 SILENCE per day at 160 days.
             </p>
             <p className="mb-4">
               Your Poet may have no words, but SILENCE gives them a voice: we
@@ -82,14 +88,13 @@ const About = () => {
               What about origins?
             </h4>
             <p className="mb-4">
-              If we are lucky enough to receive an Origin, we will use SILENCE
-              to choose a path together.
+              If we are lucky enough to receive an Origin Poet, we will use
+              SILENCE to choose a path together.
             </p>
             <p className="mb-4">
-              If the Silence contract receives an Origin Poet, the contract
-              owner address may propose a transfer and execute it after a seven
-              day waiting period. Only Origins may be transferred in this
-              manner.
+              If the Silence contract receives an Origin, the contract owner
+              address may propose a transfer and execute it after a seven day
+              waiting period. Only Origins may be transferred in this manner.
             </p>
             <p className="mb-4">
               The intent of this mechanism is to transfer any Origins to a new
@@ -101,13 +106,13 @@ const About = () => {
             </h4>
             <p className="mb-4">
               This project is about cooperating with each other, exploring the
-              world Pak has built, and creating a myth of our own. If you want
-              to make money, look elsewhere. If you want to write poetry
-              together, take the vow.
+              world Pak created, and making a myth of our own. If you want to
+              make money, look elsewhere. If you want to write poetry together,
+              take the vow.
             </p>
             <p className="mb-4">
-              The Silence contract is simple, well tested, and unaudited. Use
-              this app at your own risk.
+              The Silence contract is simple, well tested, and unaudited. Take
+              the vow at your own risk.
             </p>
           </div>
         </div>

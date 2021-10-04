@@ -7,10 +7,13 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "./interfaces/IPoets.sol";
 
+import "hardhat/console.sol";
+
 contract Silence is ERC20, ReentrancyGuard, Ownable, IERC721Receiver {
     struct Vow {
         address tokenOwner;
         uint256 tokenId;
+        uint256 created;
         uint256 updated;
     }
 
@@ -23,42 +26,42 @@ contract Silence is ERC20, ReentrancyGuard, Ownable, IERC721Receiver {
     IPoets public poets;
     mapping(uint256 => Vow) public vows;
     mapping(address => uint256[]) public vowsByAddress;
-    mapping(uint256 => uint256) public vowByTokenId;
     mapping(uint256 => TokenTransfer) public proposals;
 
     uint256 public proposalCount;
     uint256 public vowCount;
 
+    uint256 constant ACCRUAL_CAP = 160 days;
+
     constructor(address _poets) ERC20("Silence", "SILENCE") {
         poets = IPoets(_poets);
     }
 
-    function takeVow(uint256 tokenId) public nonReentrant {
+    function takeVow(uint256 tokenId) external nonReentrant {
         require(poets.ownerOf(tokenId) == msg.sender, "!tokenOwner");
         _takeVow(msg.sender, tokenId);
         poets.transferFrom(msg.sender, address(this), tokenId);
     }
 
-    function breakVow(uint256 vowId) public nonReentrant {
+    function breakVow(uint256 vowId) external nonReentrant {
         address tokenOwner = vows[vowId].tokenOwner;
         require(vows[vowId].updated != 0, "!vow");
         require(tokenOwner == msg.sender, "!tokenOwner");
         uint256 tokenId = vows[vowId].tokenId;
         uint256 accrued = _claimSilence(vowId);
-        delete vowByTokenId[tokenId];
         delete vows[vowId];
         _mint(msg.sender, accrued);
         poets.safeTransferFrom(address(this), tokenOwner, tokenId);
     }
 
-    function claim(uint256 vowId) public {
+    function claim(uint256 vowId) external {
         require(vows[vowId].updated != 0, "!vow");
         require(vows[vowId].tokenOwner == msg.sender, "!tokenOwner");
         uint256 amount = _claimSilence(vowId);
         _mint(msg.sender, amount);
     }
 
-    function claimAll() public {
+    function claimAll() external {
         claimBatch(getVowsByAddress(msg.sender));
     }
 
@@ -76,14 +79,14 @@ contract Silence is ERC20, ReentrancyGuard, Ownable, IERC721Receiver {
         _mint(msg.sender, total);
     }
 
-    function proposeTransfer(address to, uint256 tokenId) public onlyOwner {
+    function proposeTransfer(address to, uint256 tokenId) external onlyOwner {
         proposalCount++;
         proposals[proposalCount].to = to;
         proposals[proposalCount].tokenId = tokenId;
         proposals[proposalCount].timelock = block.timestamp + 7 days;
     }
 
-    function executeTransfer(uint256 id) public onlyOwner {
+    function executeTransfer(uint256 id) external onlyOwner {
         address to = proposals[id].to;
         uint256 tokenId = proposals[id].tokenId;
         require(to != address(0), "!proposal");
@@ -92,8 +95,12 @@ contract Silence is ERC20, ReentrancyGuard, Ownable, IERC721Receiver {
         poets.safeTransferFrom(address(this), to, tokenId);
     }
 
-    function claimable(uint256 vowId) public view returns (uint256) {
+    function claimable(uint256 vowId) external view returns (uint256) {
         return _claimableSilence(vowId);
+    }
+
+    function accrualRate(uint256 vowId) public view returns (uint256) {
+        return _accrualRate(vowId, block.timestamp);
     }
 
     function getVowsByAddress(address tokenOwner)
@@ -106,14 +113,12 @@ contract Silence is ERC20, ReentrancyGuard, Ownable, IERC721Receiver {
 
     function onERC721Received(
         address,
-        address from,
+        address,
         uint256 tokenId,
         bytes calldata
-    ) public override nonReentrant returns (bytes4) {
+    ) external override nonReentrant returns (bytes4) {
         require(msg.sender == address(poets), "!poet");
-        if (tokenId > 1024 && vowByTokenId[tokenId] == 0) {
-            _takeVow(from, tokenId);
-        }
+        require(tokenId < 1025, "!origin");
         return this.onERC721Received.selector;
     }
 
@@ -122,20 +127,59 @@ contract Silence is ERC20, ReentrancyGuard, Ownable, IERC721Receiver {
         vowCount++;
         vows[vowCount].tokenOwner = tokenOwner;
         vows[vowCount].tokenId = tokenId;
+        vows[vowCount].created = block.timestamp;
         vows[vowCount].updated = block.timestamp;
         vowsByAddress[tokenOwner].push(vowCount);
-        vowByTokenId[tokenId] = vowCount;
+    }
+
+    function _accrualRate(uint256 vowId, uint256 timestamp)
+        internal
+        view
+        returns (uint256)
+    {
+        uint256 vowLength = timestamp - vows[vowId].created;
+
+        if (vowLength >= ACCRUAL_CAP) {
+            return 5e18;
+        } else {
+            return 1e18 + ((vowLength * 4e18) / ACCRUAL_CAP);
+        }
     }
 
     function _claimableSilence(uint256 vowId) internal view returns (uint256) {
         uint256 updated = vows[vowId].updated;
+        uint256 duration = (block.timestamp - vows[vowId].updated);
+        uint256 breakpoint = vows[vowId].created + ACCRUAL_CAP;
+
         if (updated == 0) {
             return 0;
+        } else if (updated >= breakpoint) {
+            return _stableAccrual(duration);
+        } else if (block.timestamp > breakpoint) {
+            uint256 stableInterval = block.timestamp - breakpoint;
+            uint256 increasingInterval = breakpoint - updated;
+            uint256 rate1 = _accrualRate(vowId, updated);
+            uint256 rate2 = 5e18;
+            return
+                _increasingAccrual(rate1, rate2, increasingInterval) +
+                _stableAccrual(stableInterval);
         } else {
-            uint256 duration = (block.timestamp - vows[vowId].updated);
-            uint256 accrued = (duration * 1e18) / (1 days);
-            return accrued;
+            uint256 rate1 = _accrualRate(vowId, updated);
+            uint256 rate2 = _accrualRate(vowId, block.timestamp);
+            return _increasingAccrual(rate1, rate2, duration);
         }
+    }
+
+    function _stableAccrual(uint256 duration) internal pure returns (uint256) {
+        return (5e18 * duration) / (1 days);
+    }
+
+    function _increasingAccrual(
+        uint256 r1,
+        uint256 r2,
+        uint256 duration
+    ) internal pure returns (uint256) {
+        return (duration * (r1 + r2)) / (2 days);
     }
 
     function _claimSilence(uint256 vowId) internal returns (uint256) {

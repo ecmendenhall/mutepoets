@@ -32,9 +32,9 @@ const Contracts = () => {
   return (
     <>
       {chainId && (
-        <div className="mb-4">
+        <div>
           <h4 className="font-black font-display uppercase">Contracts</h4>
-          <ul className="mb-4">
+          <ul>
             <ContractItem
               name="Silence"
               address={config.silence.address}

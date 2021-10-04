@@ -106,6 +106,8 @@ export function usePoets(ids: BigNumber[]) {
     };
     if (ids.length > 0) {
       loadData();
+    } else {
+      setLoading(false);
     }
   }, [
     JSON.stringify(ids),
@@ -260,7 +262,6 @@ export function useAllPoetsByAccount(
   const poets = usePoets(poetIds || []);
 
   useEffect(() => {
-    console.log("running!");
     const loadTokenIds = async () => {
       if (account && library) {
         const token = new ethers.Contract(

@@ -4,6 +4,7 @@ import { useCallback } from "react";
 import { useBreakVow, useVowsByAccount } from "../hooks/contracts";
 import { Poet } from "../types";
 import Button from "./Button";
+import Grid from "./Grid";
 import PoetGrid from "./PoetGrid";
 import SelectPoet from "./SelectPoet";
 
