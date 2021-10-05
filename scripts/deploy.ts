@@ -71,11 +71,8 @@ const pledgePoets = async (
   for (let id of poetIds) {
     await contracts.lostPoets
       .connect(signer)
-      ["safeTransferFrom(address,address,uint256)"](
-        signer.address,
-        contracts.silence.address,
-        id
-      );
+      .approve(contracts.silence.address, id);
+    await contracts.silence.connect(signer).takeVow(id);
   }
 };
 
@@ -153,9 +150,8 @@ async function deployLostPoets(ethers: Ethers) {
 }
 
 async function deployCoreContracts(ethers: Ethers, lostPoetsAddress: string) {
-  const LOST_POETS_MAINNET = "0x4b3406a41399c7FD2BA65cbC93697Ad9E7eA61e5";
   const SilenceFactory = await ethers.getContractFactory("Silence");
-  const silence = (await SilenceFactory.deploy(LOST_POETS_MAINNET)) as Silence;
+  const silence = (await SilenceFactory.deploy(lostPoetsAddress)) as Silence;
   await silence.deployed();
 
   console.log("Silence deployed to:", silence.address);

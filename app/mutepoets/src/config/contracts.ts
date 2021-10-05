@@ -6,7 +6,7 @@ const LOST_POETS_MAINNET = "0x4b3406a41399c7FD2BA65cbC93697Ad9E7eA61e5";
 const config = {
   [ChainId.Hardhat]: {
     lostPoets: {
-      address: LOST_POETS_MAINNET, //"0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
+      address: "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
       abi: new Interface([
         "function balanceOf(address owner) returns (uint256)",
         "function tokenURI(uint256 tokenId) returns (string)",
@@ -18,7 +18,7 @@ const config = {
       ]),
     },
     silence: {
-      address: "0x21dF544947ba3E8b3c32561399E88B52Dc8b2823", //"0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9",
+      address: "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9",
       abi: new Interface([
         "function takeVow(uint256 tokenId)",
         "function breakVow(uint256 vowId)",
