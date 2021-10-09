@@ -1,0 +1,2 @@
+@openzeppelin/=../node_modules/@openzeppelin/
+@manifoldxyz/=../node_modules/@manifoldxyz/

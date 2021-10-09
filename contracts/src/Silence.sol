@@ -151,7 +151,7 @@ contract Silence is ERC20, ReentrancyGuard, Ownable, IERC721Receiver {
         returns (uint256)
     {
         uint256 vowLength = timestamp - vows[vowId].created;
-        if (vowLength >= SILENT_ERA) {
+        if (vowLength > SILENT_ERA) {
             return 0;
         } else {
             return

@@ -8,3 +8,9 @@ typechain
 coverage
 
 coverage.json
+
+#Dapptools artifacts
+bin
+contracts/out/
+
+.vscode
