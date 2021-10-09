@@ -1,17 +1,16 @@
-import { BigNumber, Contract, ethers } from "ethers";
+import { Contract, ethers } from "ethers";
 import { HardhatEthersHelpers } from "@nomiclabs/hardhat-ethers/types";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
-import { MockERC20, LostPoetPages, LostPoets, Silence } from "../typechain";
 import { parseEther } from "ethers/lib/utils";
 import { Network } from "hardhat/types";
 
 type Ethers = typeof ethers & HardhatEthersHelpers;
 
 interface Contracts {
-  mockAsh: MockERC20;
-  lostPoetPages: LostPoetPages;
-  lostPoets: LostPoets;
-  silence: Silence;
+  mockAsh: Contract;
+  lostPoetPages: Contract;
+  lostPoets: Contract;
+  silence: Contract;
 }
 
 const range = (n: number) => {
@@ -122,26 +121,23 @@ async function deployMultiCall(ethers: Ethers) {
 
 async function deployLostPoets(ethers: Ethers) {
   const MockERC20Factory = await ethers.getContractFactory("MockERC20");
-  const mockAsh = (await MockERC20Factory.deploy(
-    "Mock Ash",
-    "ASH"
-  )) as MockERC20;
+  const mockAsh = await MockERC20Factory.deploy("Mock Ash", "ASH");
   await mockAsh.deployed();
 
   console.log("MockAsh deployed to:", mockAsh.address);
 
   const LostPoetPagesFactory = await ethers.getContractFactory("LostPoetPages");
-  const lostPoetPages = (await LostPoetPagesFactory.deploy({
+  const lostPoetPages = await LostPoetPagesFactory.deploy({
     gasLimit: 7_000_000,
-  })) as LostPoetPages;
+  });
   await lostPoetPages.deployed();
 
   console.log("LostPoetPages deployed to:", lostPoetPages.address);
 
   const LostPoetsFactory = await ethers.getContractFactory("LostPoets");
-  const lostPoets = (await LostPoetsFactory.deploy(lostPoetPages.address, {
+  const lostPoets = await LostPoetsFactory.deploy(lostPoetPages.address, {
     gasLimit: 7_000_000,
-  })) as LostPoets;
+  });
   await lostPoets.deployed();
 
   console.log("LostPoets deployed to:", lostPoets.address);
@@ -151,7 +147,7 @@ async function deployLostPoets(ethers: Ethers) {
 
 async function deployCoreContracts(ethers: Ethers, lostPoetsAddress: string) {
   const SilenceFactory = await ethers.getContractFactory("Silence");
-  const silence = (await SilenceFactory.deploy(lostPoetsAddress)) as Silence;
+  const silence = await SilenceFactory.deploy(lostPoetsAddress);
   await silence.deployed();
 
   console.log("Silence deployed to:", silence.address);

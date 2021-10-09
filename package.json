@@ -1,5 +1,9 @@
 {
   "name": "hardhat-project",
+  "scripts": {
+    "test": "yarn hardhat compile --force && yarn hardhat test",
+    "coverage": "yarn hardhat compile --force && yarn hardhat coverage"
+  },
   "devDependencies": {
     "@manifoldxyz/libraries-solidity": "^1.0.2",
     "@nomiclabs/hardhat-ethers": "^2.0.2",
