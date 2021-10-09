@@ -35,12 +35,15 @@ contract Silence is ERC20, ReentrancyGuard, Ownable, IERC721Receiver {
     uint256 public proposalCount;
     uint256 public vowCount;
 
-    uint256 private constant VOW_VESTING = 160 days;
+    uint256 private immutable accrualEnd;
+
+    uint256 private constant SILENT_ERA = 360 days;
     uint256 private constant MAX_DAILY_SILENCE = 5e18;
     uint256 private constant MIN_DAILY_SILENCE = 1e18;
 
     constructor(address _poets) ERC20("Silence", "SILENCE") {
         Poets = IPoets(_poets);
+        accrualEnd = block.timestamp + SILENT_ERA;
     }
 
     function takeVow(uint256 tokenId) external nonReentrant {
@@ -58,7 +61,7 @@ contract Silence is ERC20, ReentrancyGuard, Ownable, IERC721Receiver {
         uint256 accrued = _claimSilence(vowId);
         delete vows[vowId];
         _mint(msg.sender, accrued);
-        Poets.safeTransferFrom(address(this), tokenOwner, tokenId);
+        Poets.transferFrom(address(this), tokenOwner, tokenId);
         emit BreakVow(tokenOwner, vowId, tokenId);
     }
 
@@ -102,7 +105,7 @@ contract Silence is ERC20, ReentrancyGuard, Ownable, IERC721Receiver {
         require(to != address(0), "!proposal");
         require(tokenId < 1025, "!origin");
         require(proposals[id].timelock < block.timestamp, "timelock");
-        Poets.safeTransferFrom(address(this), to, tokenId);
+        Poets.transferFrom(address(this), to, tokenId);
     }
 
     function claimable(uint256 vowId) external view returns (uint256) {
@@ -148,44 +151,32 @@ contract Silence is ERC20, ReentrancyGuard, Ownable, IERC721Receiver {
         returns (uint256)
     {
         uint256 vowLength = timestamp - vows[vowId].created;
-        if (vowLength >= VOW_VESTING) {
-            return MAX_DAILY_SILENCE;
+        if (vowLength >= SILENT_ERA) {
+            return 0;
         } else {
             return
                 MIN_DAILY_SILENCE +
                 ((vowLength * (MAX_DAILY_SILENCE - MIN_DAILY_SILENCE)) /
-                    VOW_VESTING);
+                    SILENT_ERA);
         }
     }
 
     function _claimableSilence(uint256 vowId) internal view returns (uint256) {
-        uint256 updated = vows[vowId].updated;
-        uint256 duration = (block.timestamp - updated);
-        uint256 breakpoint = vows[vowId].created + VOW_VESTING;
+        uint256 start = vows[vowId].updated;
+        uint256 end = block.timestamp;
+        uint256 duration = (end - start);
 
-        if (updated == 0) {
+        if (start == 0) {
             return 0;
-        } else if (updated >= breakpoint) {
-            return _stableAccrual(duration);
-        } else if (block.timestamp > breakpoint) {
-            uint256 stableInterval = block.timestamp - breakpoint;
-            uint256 increasingInterval = breakpoint - updated;
-            uint256 rate1 = _accrualRate(vowId, updated);
-            return
-                _increasingAccrual(
-                    rate1,
-                    MAX_DAILY_SILENCE,
-                    increasingInterval
-                ) + _stableAccrual(stableInterval);
-        } else {
-            uint256 rate1 = _accrualRate(vowId, updated);
-            uint256 rate2 = _accrualRate(vowId, block.timestamp);
-            return _increasingAccrual(rate1, rate2, duration);
+        } else if (start >= accrualEnd) {
+            return 0;
+        } else if (end > accrualEnd) {
+            duration = accrualEnd - start;
+            end = accrualEnd;
         }
-    }
-
-    function _stableAccrual(uint256 duration) internal pure returns (uint256) {
-        return (MAX_DAILY_SILENCE * duration) / (1 days);
+        uint256 rate1 = _accrualRate(vowId, start);
+        uint256 rate2 = _accrualRate(vowId, end);
+        return _increasingAccrual(rate1, rate2, duration);
     }
 
     function _increasingAccrual(
