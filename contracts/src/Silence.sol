@@ -176,10 +176,10 @@ contract Silence is ERC20, ReentrancyGuard, Ownable, IERC721Receiver {
         }
         uint256 rate1 = _accrualRate(vowId, start);
         uint256 rate2 = _accrualRate(vowId, end);
-        return _increasingAccrual(rate1, rate2, duration);
+        return _accruedAmount(rate1, rate2, duration);
     }
 
-    function _increasingAccrual(
+    function _accruedAmount(
         uint256 r1,
         uint256 r2,
         uint256 duration

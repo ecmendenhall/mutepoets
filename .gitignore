@@ -12,5 +12,6 @@ coverage.json
 #Dapptools artifacts
 bin
 contracts/out/
+out
 
 .vscode
