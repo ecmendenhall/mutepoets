@@ -1,6 +1,7 @@
 import BlockCounter from "../components/BlockCounter";
 import Connect from "../components/Connect";
 import Nav from "../components/Nav";
+import Notifications from "../components/Notifications";
 
 interface Props {
   subhed: React.ReactNode;
@@ -10,6 +11,7 @@ interface Props {
 const FullPage = ({ subhed, children }: Props) => {
   return (
     <div className="p-16 min-h-screen bg-gray-200">
+      <Notifications />
       <div className="mb-4">
         <h1 className="font-display uppercase tracking-wider text-gray-700 font-bold text-4xl lg:text-6xl text-center">
           Silence

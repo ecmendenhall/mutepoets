@@ -1,8 +1,6 @@
 import { ChainId } from "@usedapp/core";
 import { Interface } from "ethers/lib/utils";
 
-const LOST_POETS_MAINNET = "0x4b3406a41399c7FD2BA65cbC93697Ad9E7eA61e5";
-
 const config = {
   [ChainId.Hardhat]: {
     lostPoets: {
@@ -31,6 +29,11 @@ const config = {
         "function vowCount() returns (uint256)",
         "function balanceOf(address owner) returns (uint256)",
         "event Transfer(address indexed from, address indexed to, uint256 value)",
+        "event TakeVow(address indexed owner, uint256 tokenId)",
+        "event BreakVow(address indexed owner, uint256 vowId, uint256 tokenId)",
+        "event Claim(address indexed owner, uint256 vowId, uint256 amount)",
+        "event ClaimBatch(address indexed owner, uint256[] vowIds, uint256 total)",
+        "event ProposeTransfer(address indexed to, uint256 tokenId)",
       ]),
     },
   },
@@ -55,6 +58,11 @@ const config = {
         "function getVowsByAddress(address tokenOwner) returns (uint256[] memory)",
         "function vows(uint256 vowId) returns (address, uint256, uint256)",
         "function balanceOf(address owner) returns (uint256)",
+        "event TakeVow(address indexed owner, uint256 tokenId)",
+        "event BreakVow(address indexed owner, uint256 vowId, uint256 tokenId)",
+        "event Claim(address indexed owner, uint256 vowId, uint256 amount)",
+        "event ClaimBatch(address indexed owner, uint256[] vowIds, uint256 total)",
+        "event ProposeTransfer(address indexed to, uint256 tokenId)",
       ]),
     },
   },

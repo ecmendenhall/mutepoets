@@ -19,6 +19,7 @@ const About = () => {
                   <a
                     href="https://github.com/ecmendenhall/mutepoets"
                     target="_blank"
+                    rel="noreferrer"
                   >
                     Github
                   </a>
@@ -39,10 +40,15 @@ const About = () => {
                 Created by
               </h4>
               <div className="w-36 xl:w-48 bg-gray-100 text-center shadow">
-                <a href="https://twitter.com/ecmendenhall" target="_blank">
+                <a
+                  href="https://twitter.com/ecmendenhall"
+                  target="_blank"
+                  rel="noreferrer"
+                >
                   <div className="group relative flex flex-col place-content-center cursor-pointer">
                     <img
                       className="object-cover"
+                      alt="Poet #6660"
                       src="https://d1xxei964ioe0z.cloudfront.net/full/5e9323c7b2fef377487d876641230c20c7dccb8daaa4ab23ee1663186ee5467d.png"
                     />
                     <div className="hidden group-hover:block absolute text-white bg-gray-900 w-full bottom-4 p-2 xl:p-4">
@@ -63,8 +69,8 @@ const About = () => {
               transferred from your wallet to the Silence contract.
             </p>
             <p className="mb-4">
-              You may claim at least 1 SILENCE token per day, per silent poet.
-              You must claim SILENCE from the address used to take the vow.
+              You may claim at least 1 SILENCE per day, per silent poet. You
+              must claim SILENCE from the address used to take the vow.
             </p>
             <p className="mb-4">
               Silent poets may break their vow at any time. They will be
@@ -72,15 +78,11 @@ const About = () => {
             </p>
             <p className="mb-4">
               Unbroken vows accrue additional SILENCE over time, up to a maximum
-              of 5 SILENCE per day at 160 days.
+              of 5 SILENCE per day at 360 days.
             </p>
             <p className="mb-4">
               Your Poet may have no words, but SILENCE gives them a voice: we
               will use it to decide how to play the game together.
-            </p>
-            <p className="mb-4">
-              SILENCE grants access to Discord, and determines voting power on
-              Snapshot.
             </p>
           </div>
           <div className="md:w-1/3 lg:w-1/4 mb-4">
@@ -106,13 +108,13 @@ const About = () => {
             </h4>
             <p className="mb-4">
               This project is about cooperating with each other, exploring the
-              world Pak created, and making a myth of our own. If you want to
-              make money, look elsewhere. If you want to write poetry together,
-              take the vow.
+              game and world Pak created, and making a myth of our own. If you
+              want to make money, look elsewhere. If you want to write poetry
+              together, take the vow.
             </p>
             <p className="mb-4">
-              The Silence contract is simple, well tested, and unaudited. Take
-              the vow at your own risk.
+              The Silence contract is simple, tested, and unaudited. Take the
+              vow at your own risk.
             </p>
           </div>
         </div>

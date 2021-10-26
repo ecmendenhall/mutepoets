@@ -1,12 +1,11 @@
 import { useEthers } from "@usedapp/core";
-import { BigNumber } from "ethers";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { useBreakVow, useVowsByAccount } from "../hooks/contracts";
 import { Poet } from "../types";
 import Button from "./Button";
-import Grid from "./Grid";
-import PoetGrid from "./PoetGrid";
 import SelectPoet from "./SelectPoet";
+
+type ActionState = "start" | "select" | "confirm";
 
 interface Props {
   loading: boolean;
@@ -17,30 +16,58 @@ const BreakVow = ({ loading, poets }: Props) => {
   const { account } = useEthers();
   const userVows = useVowsByAccount(account);
   const { state: breakVowState, send: sendBreakVow } = useBreakVow();
+  const [selectEnabled, setSelectEnabled] = useState<boolean>(true);
+  const [selectedPoet, setSelectedPoet] = useState<Poet>();
+  const [actionState, setActionState] = useState<ActionState>("start");
 
   const breakVow = useCallback(() => {
     const send = async () => {
-      if (poets && userVows) {
-        const [lastPoet] = poets.slice(-1);
-        const tokenId = BigNumber.from(lastPoet.tokenId);
-        const vow = userVows.find((vow) => vow?.tokenId.eq(tokenId));
+      if (selectedPoet && userVows) {
+        const vow = userVows.find((vow) =>
+          vow?.tokenId.eq(selectedPoet.tokenId)
+        );
         if (vow) {
           console.log(vow);
-          sendBreakVow(vow.vowId);
+          setActionState("confirm");
+          setSelectEnabled(false);
+          await sendBreakVow(vow.vowId);
+          setActionState("start");
+          setSelectedPoet(undefined);
+          setSelectEnabled(true);
         }
       }
     };
     send();
-  }, [poets, userVows]);
+  }, [selectedPoet, userVows, sendBreakVow]);
+
+  const onPoetSelected = (poet: Poet) => {
+    console.log(poet);
+    setSelectedPoet(poet);
+  };
+
+  const buttonText = () => {
+    switch (actionState) {
+      case "start":
+        return "Break the vow";
+      case "confirm":
+        return "Confirm";
+    }
+  };
 
   return (
     <div>
       {loading ? (
         "Loading..."
       ) : (
-        <SelectPoet placeChildren="left" loading={loading} poets={poets || []}>
+        <SelectPoet
+          placeChildren="left"
+          loading={loading}
+          poets={poets || []}
+          enabled={selectEnabled}
+          onSelect={onPoetSelected}
+        >
           <Button color="gray" onClick={breakVow}>
-            Break the vow
+            {buttonText()}
           </Button>
         </SelectPoet>
       )}

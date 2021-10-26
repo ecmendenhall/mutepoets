@@ -1,12 +1,12 @@
 import { useEthers } from "@usedapp/core";
-import { BigNumber } from "ethers";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { getConfig } from "../config/contracts";
 import { useApprove, useTakeVow } from "../hooks/contracts";
 import { Poet } from "../types";
 import Button from "./Button";
-import PoetGrid from "./PoetGrid";
 import SelectPoet from "./SelectPoet";
+
+type ActionState = "start" | "approve" | "confirm";
 
 interface Props {
   loading: boolean;
@@ -18,27 +18,62 @@ const TakeVow = ({ loading, poets }: Props) => {
   const config = getConfig(chainId);
   const { state: approveState, send: sendApprove } = useApprove();
   const { state: takeVowState, send: sendTakeVow } = useTakeVow();
+  const [selectEnabled, setSelectEnabled] = useState<boolean>(true);
+  const [selectedPoet, setSelectedPoet] = useState<Poet>();
+  const [actionState, setActionState] = useState<ActionState>("start");
 
   const takeVow = useCallback(() => {
     const send = async () => {
-      if (poets) {
-        const [lastPoet] = poets.slice(-1);
-        const tokenId = BigNumber.from(lastPoet.tokenId);
-        await sendApprove(config.silence.address, tokenId);
-        await sendTakeVow(tokenId);
+      console.log(selectedPoet);
+      if (selectedPoet) {
+        setActionState("approve");
+        const wat = await sendApprove(
+          config.silence.address,
+          selectedPoet.tokenId
+        );
+        console.log(wat);
+        setActionState("confirm");
+        setSelectEnabled(false);
+        const huh = await sendTakeVow(selectedPoet.tokenId);
+        console.log(huh);
+        setActionState("start");
+        setSelectedPoet(undefined);
+        setSelectEnabled(true);
       }
     };
     send();
-  }, [poets, config]);
+  }, [selectedPoet, config, sendApprove, sendTakeVow]);
+
+  const onPoetSelected = (poet: Poet) => {
+    console.log(poet);
+    setSelectedPoet(poet);
+  };
+
+  const buttonText = () => {
+    switch (actionState) {
+      case "start":
+        return "Take the vow";
+      case "approve":
+        return "Approve";
+      case "confirm":
+        return "Confirm";
+    }
+  };
 
   return (
     <div>
       {loading ? (
         "Loading..."
       ) : (
-        <SelectPoet placeChildren="right" loading={loading} poets={poets || []}>
+        <SelectPoet
+          placeChildren="right"
+          loading={loading}
+          poets={poets || []}
+          enabled={selectEnabled}
+          onSelect={onPoetSelected}
+        >
           <Button color="gray" onClick={takeVow}>
-            Take the vow
+            {buttonText()}
           </Button>
         </SelectPoet>
       )}

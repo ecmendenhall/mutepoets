@@ -1,5 +1,4 @@
 import { useEthers } from "@usedapp/core";
-import { formatEther, formatUnits } from "@ethersproject/units";
 import {
   usePoetsByAccount,
   useSilence,

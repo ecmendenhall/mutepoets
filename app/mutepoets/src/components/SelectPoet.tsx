@@ -9,14 +9,28 @@ interface Props {
   poets: Poet[];
   children: React.ReactNode;
   placeChildren: PlaceChildren;
+  enabled: boolean;
+  onSelect: (poet: Poet) => void;
 }
 
-const SelectPoet = ({ loading, poets, children, placeChildren }: Props) => {
+const SelectPoet = ({
+  loading,
+  poets,
+  children,
+  placeChildren,
+  enabled,
+  onSelect,
+}: Props) => {
   const [selected, setSelected] = useState<Poet>();
+
+  const onPoetSelected = (poet: Poet) => {
+    setSelected(poet);
+    onSelect(poet);
+  };
 
   return (
     <Grid>
-      {placeChildren == "left" && children}
+      {placeChildren === "left" && children}
       {!loading &&
         poets &&
         poets.map((poet) => {
@@ -28,11 +42,15 @@ const SelectPoet = ({ loading, poets, children, placeChildren }: Props) => {
             <div className="bg-gray-100 text-center shadow" key={poet.name}>
               <div
                 onClick={() => {
-                  setSelected(poet);
+                  enabled && onPoetSelected(poet);
                 }}
                 className="group relative flex flex-col place-content-center cursor-pointer"
               >
-                <img className="object-cover" src={poet.image_url} />
+                <img
+                  className="object-cover"
+                  src={poet.image_url}
+                  alt={poet.name}
+                />
                 <div className={className}>{poet.name}</div>
                 {active && (
                   <div className="absolute w-full h-full ring-8 ring-gray-50 ring-opacity-80 ring-inset" />
@@ -41,7 +59,7 @@ const SelectPoet = ({ loading, poets, children, placeChildren }: Props) => {
             </div>
           );
         })}
-      {placeChildren == "right" && children}
+      {placeChildren === "right" && children}
     </Grid>
   );
 };

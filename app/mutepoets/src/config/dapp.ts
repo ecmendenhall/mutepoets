@@ -1,6 +1,10 @@
 import { ChainId, Config, MULTICALL_ADDRESSES } from "@usedapp/core";
 
 const config: Config = {
+  notifications: {
+    checkInterval: 500,
+    expirationPeriod: 15000,
+  },
   readOnlyChainId: ChainId.Hardhat,
   readOnlyUrls: {
     [ChainId.Hardhat]: "http://localhost:8545",

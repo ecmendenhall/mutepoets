@@ -1,6 +1,5 @@
 import { BigNumber } from "@ethersproject/bignumber";
-import { id } from "@ethersproject/hash";
-import { formatUnits, parseEther } from "@ethersproject/units";
+import { parseEther } from "@ethersproject/units";
 import {
   addressEqual,
   useContractCall,
@@ -12,7 +11,6 @@ import {
 import { Contract } from "@usedapp/core/node_modules/ethers";
 import { ethers } from "ethers";
 import { useEffect, useState } from "react";
-import { parseIsolatedEntityName } from "typescript";
 import { getConfig } from "../config/contracts";
 import { Poet, Vow, VowData } from "../types";
 
@@ -70,6 +68,7 @@ export function usePoet(id: BigNumber | undefined) {
 }
 
 export function usePoets(ids: BigNumber[]) {
+  const idsDependency = JSON.stringify(ids);
   const { chainId } = useEthers();
   const config = getConfig(chainId);
   const [data, setData] = useState<Poet[] | undefined>();
@@ -85,6 +84,7 @@ export function usePoets(ids: BigNumber[]) {
     };
   });
   const poetsResponse = (useContractCalls(poetCalls) ?? []) as string[][];
+  const poetsResponseDependency = JSON.stringify(poetsResponse);
 
   useEffect(() => {
     const loadData = async () => {
@@ -109,13 +109,7 @@ export function usePoets(ids: BigNumber[]) {
     } else {
       setLoading(false);
     }
-  }, [
-    JSON.stringify(ids),
-    JSON.stringify(poetsResponse),
-    setData,
-    setLoading,
-    setError,
-  ]);
+  }, [idsDependency, poetsResponseDependency, setData, setLoading, setError]);
   return { data, loading, error };
 }
 
@@ -149,6 +143,8 @@ export function useAllVows() {
         tokenId,
         updated,
       };
+    } else {
+      return undefined;
     }
   });
   const isVowData = (vow: VowData | undefined): vow is VowData => {
@@ -185,6 +181,8 @@ export function useVowsByAccount(account: string | null | undefined) {
         tokenId,
         updated,
       };
+    } else {
+      return undefined;
     }
   });
   const isVowData = (vow: VowData | undefined): vow is VowData => {
@@ -298,7 +296,13 @@ export function useAllPoetsByAccount(
       }
     };
     loadTokenIds();
-  }, [account, library, ...dependencies]);
+  }, [
+    account,
+    library,
+    config.lostPoets.abi,
+    config.lostPoets.address,
+    ...dependencies,
+  ]);
 
   return poets;
 }
@@ -357,26 +361,34 @@ export function useApprove() {
   const { chainId } = useEthers();
   const config = getConfig(chainId);
   const contract = new Contract(config.lostPoets.address, config.lostPoets.abi);
-  return useContractFunction(contract, "approve");
+  return useContractFunction(contract, "approve", {
+    transactionName: "Approve",
+  });
 }
 
 export function useTakeVow() {
   const { chainId } = useEthers();
   const config = getConfig(chainId);
   const contract = new Contract(config.silence.address, config.silence.abi);
-  return useContractFunction(contract, "takeVow");
+  return useContractFunction(contract, "takeVow", {
+    transactionName: "Take Vow",
+  });
 }
 
 export function useBreakVow() {
   const { chainId } = useEthers();
   const config = getConfig(chainId);
   const contract = new Contract(config.silence.address, config.silence.abi);
-  return useContractFunction(contract, "breakVow");
+  return useContractFunction(contract, "breakVow", {
+    transactionName: "Break Vow",
+  });
 }
 
 export function useClaimAll() {
   const { chainId } = useEthers();
   const config = getConfig(chainId);
   const contract = new Contract(config.silence.address, config.silence.abi);
-  return useContractFunction(contract, "claimAll");
+  return useContractFunction(contract, "claimAll", {
+    transactionName: "Claim All",
+  });
 }

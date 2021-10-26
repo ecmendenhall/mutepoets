@@ -13,14 +13,18 @@ interface Props {
 const PoetGrid = ({ loading, poets, children, placeChildren }: Props) => {
   return (
     <Grid>
-      {placeChildren == "left" && children}
+      {placeChildren === "left" && children}
       {!loading &&
         poets &&
         poets.map((poet) => {
           return (
             <div className="bg-gray-100 text-center shadow" key={poet.name}>
               <div className="group relative flex flex-col place-content-center cursor-pointer">
-                <img className="object-cover" src={poet.image_url} />
+                <img
+                  className="object-cover"
+                  src={poet.image_url}
+                  alt={poet.name}
+                />
                 <div className="hidden group-hover:block absolute text-white bg-gray-900 w-full bottom-4 p-2 2xl:p-4">
                   {poet.name}
                 </div>
@@ -28,7 +32,7 @@ const PoetGrid = ({ loading, poets, children, placeChildren }: Props) => {
             </div>
           );
         })}
-      {placeChildren == "right" && children}
+      {placeChildren === "right" && children}
     </Grid>
   );
 };

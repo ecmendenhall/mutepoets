@@ -3,7 +3,6 @@ import { formatEther, parseEther, parseUnits } from "@ethersproject/units";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect } from "chai";
 import { ethers } from "hardhat";
-import { parse } from "path/posix";
 
 import {
   MockERC20,
@@ -455,6 +454,12 @@ describe("silence", () => {
       ).to.be.revertedWith("!vow");
     });
 
+    it("reverts if caller is not token owner", async () => {
+      await expect(
+        contracts.silence.connect(nonOwner).claim(1)
+      ).to.be.revertedWith("!tokenOwner");
+    });
+
     it("transfers at least 1 SILENCE per day", async () => {
       let balance = await contracts.silence.balanceOf(poetHolder.address);
       expect(balance).to.equal(0);
@@ -603,7 +608,11 @@ describe("silence", () => {
       await contracts.silence.connect(poetHolder).claimBatch([1, 2, 3]);
 
       const balance = await contracts.silence.balanceOf(poetHolder.address);
-      assertCloseTo(parseEther("3.016736882730933735"), balance, parseEther("0.0001"))
+      assertCloseTo(
+        parseEther("3.016736882730933735"),
+        balance,
+        parseEther("0.0001")
+      );
     });
 
     it("ignores invalid vows", async () => {
@@ -627,8 +636,9 @@ describe("silence", () => {
 
     it("emits a ClaimBatch event", async () => {
       await ethers.provider.send("evm_increaseTime", [24 * 60 * 60]);
-      await expect(contracts.silence.connect(poetHolder).claimBatch([1, 2, 3]))
-        .to.emit(contracts.silence, "ClaimBatch");
+      await expect(
+        contracts.silence.connect(poetHolder).claimBatch([1, 2, 3])
+      ).to.emit(contracts.silence, "ClaimBatch");
     });
   });
 
@@ -746,17 +756,29 @@ describe("silence", () => {
       await ethers.provider.send("evm_increaseTime", [24 * 60 * 60]);
       await ethers.provider.send("evm_mine", []);
       claimable = await contracts.silence.claimable(1);
-      assertCloseTo(parseEther("1.005555555555555555"), claimable, parseEther("0.0001"));
+      assertCloseTo(
+        parseEther("1.005555555555555555"),
+        claimable,
+        parseEther("0.0001")
+      );
 
       await ethers.provider.send("evm_increaseTime", [24 * 60 * 60]);
       await ethers.provider.send("evm_mine", []);
       claimable = await contracts.silence.claimable(1);
-      assertCloseTo(parseEther("2.022222222222222222"), claimable, parseEther("0.0001"));
+      assertCloseTo(
+        parseEther("2.022222222222222222"),
+        claimable,
+        parseEther("0.0001")
+      );
 
       await ethers.provider.send("evm_increaseTime", [24 * 60 * 60]);
       await ethers.provider.send("evm_mine", []);
       claimable = await contracts.silence.claimable(1);
-      assertCloseTo(parseEther("3.049999999999999999"), claimable, parseEther("0.0001"));
+      assertCloseTo(
+        parseEther("3.049999999999999999"),
+        claimable,
+        parseEther("0.0001")
+      );
 
       await contracts.silence.connect(poetHolder).claim(1);
       claimable = await contracts.silence.claimable(1);
@@ -765,7 +787,11 @@ describe("silence", () => {
       await ethers.provider.send("evm_increaseTime", [24 * 60 * 60]);
       await ethers.provider.send("evm_mine", []);
       claimable = await contracts.silence.claimable(1);
-      assertCloseTo(parseEther("1.038889017489711933"), claimable, parseEther("0.0001"));
+      assertCloseTo(
+        parseEther("1.038889017489711933"),
+        claimable,
+        parseEther("0.0001")
+      );
     });
 
     it("accrual is 9.45 SILENCE at 9 days", async () => {

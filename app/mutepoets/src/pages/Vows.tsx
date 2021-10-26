@@ -1,29 +1,16 @@
-import { useEthers, useTokenBalance } from "@usedapp/core";
+import { useEthers } from "@usedapp/core";
 import FullPage from "../layouts/FullPage";
-import { getConfig } from "../config/contracts";
-import { formatEther, formatUnits } from "@ethersproject/units";
-import {
-  useAllPoetsByAccount,
-  usePoetsByAccount,
-  useTakeVow,
-  useVows,
-  useVowsByAccount,
-} from "../hooks/contracts";
-import Button from "../components/Button";
-import PoetGrid from "../components/PoetGrid";
+import { usePoetsByAccount, useVows } from "../hooks/contracts";
 import Poets from "../components/Poets";
 import TakeVow from "../components/TakeVow";
 import BreakVow from "../components/BreakVow";
-import { useCallback } from "react";
 
 const Vows = () => {
   const { account } = useEthers();
   const {
     silentPoetsCount,
-    vows,
     silentPoets: { loading: loadingSilentPoets, data: allSilentPoets },
   } = useVows();
-  const userVows = useVowsByAccount(account);
   const {
     loading: loadingMyPoets,
     silentPoets,
