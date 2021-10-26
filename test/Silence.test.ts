@@ -180,7 +180,7 @@ describe("silence", () => {
 
   describe("Constructor", () => {
     it("stores the address of the Lost Poets contract", async () => {
-      expect(await contracts.silence.Poets()).to.equal(
+      expect(await contracts.silence.poets()).to.equal(
         contracts.lostPoets.address
       );
     });

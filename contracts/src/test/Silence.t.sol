@@ -5,7 +5,7 @@ import "./utils/SilenceTest.sol";
 
 contract TestConstructor is SilenceTest {
     function test_stores_poets_address() public {
-        assertEq(address(silence.Poets()), address(lostPoets));
+        assertEq(address(silence.poets()), address(lostPoets));
     }
 }
 

@@ -27,7 +27,6 @@ const BreakVow = ({ loading, poets }: Props) => {
           vow?.tokenId.eq(selectedPoet.tokenId)
         );
         if (vow) {
-          console.log(vow);
           setActionState("confirm");
           setSelectEnabled(false);
           await sendBreakVow(vow.vowId);
@@ -41,7 +40,6 @@ const BreakVow = ({ loading, poets }: Props) => {
   }, [selectedPoet, userVows, sendBreakVow]);
 
   const onPoetSelected = (poet: Poet) => {
-    console.log(poet);
     setSelectedPoet(poet);
   };
 

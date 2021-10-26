@@ -21,8 +21,8 @@ const Vows = () => {
     <FullPage subhed='"So tell me librarian, do you want an army of mute Poets or a Poet who can speak a lot of things?"'>
       <div className="font-body text-l">
         <div className="flex flex-col mb-8">
-          <TakeVow loading={loadingMyPoets} poets={mutePoets} />
-          <BreakVow loading={loadingMyPoets} poets={silentPoets} />
+          {account && <TakeVow loading={loadingMyPoets} poets={mutePoets} />}
+          {account && <BreakVow loading={loadingMyPoets} poets={silentPoets} />}
           <Poets
             loading={loadingSilentPoets}
             poets={allSilentPoets}

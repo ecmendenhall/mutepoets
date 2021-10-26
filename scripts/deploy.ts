@@ -157,21 +157,25 @@ async function deployCoreContracts(ethers: Ethers, lostPoetsAddress: string) {
 export async function deployTestnet(ethers: Ethers) {
   const [owner] = await ethers.getSigners();
 
-  const { mockAsh, lostPoetPages, lostPoets } = await deployLostPoets(ethers);
-  const { silence } = await deployCoreContracts(ethers, lostPoets.address);
-  const contracts = { mockAsh, lostPoetPages, lostPoets, silence };
+  //const { mockAsh, lostPoetPages, lostPoets } = await deployLostPoets(ethers);
+  const LOST_POETS_RINKEBY_ADDR = "0x39E689C76a89409dB925bC7c4100d8fBe75d5F45";
+  const { silence } = await deployCoreContracts(
+    ethers,
+    LOST_POETS_RINKEBY_ADDR
+  );
+  const contracts = { silence };
 
-  console.log("Activating page sale...");
-  await activatePageSale(owner, contracts);
+  // console.log("Activating page sale...");
+  // await activatePageSale(owner, contracts);
 
-  console.log("Enabling page redemption...");
-  await enablePageRedemption(owner, contracts);
+  // console.log("Enabling page redemption...");
+  // await enablePageRedemption(owner, contracts);
 
-  console.log("Unlocking words...");
-  await unlockWords(owner, contracts);
+  // console.log("Unlocking words...");
+  // await unlockWords(owner, contracts);
 
-  console.log("Setting prefix URI...");
-  await setPrefixURI(owner, contracts);
+  // console.log("Setting prefix URI...");
+  // await setPrefixURI(owner, contracts);
 }
 
 export async function deployLocal(ethers: Ethers, network: Network) {

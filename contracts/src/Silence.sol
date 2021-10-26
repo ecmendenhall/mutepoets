@@ -27,7 +27,7 @@ contract Silence is ERC20, ReentrancyGuard, Ownable, IERC721Receiver {
     event ClaimBatch(address indexed owner, uint256[] vowIds, uint256 total);
     event ProposeTransfer(address indexed to, uint256 tokenId);
 
-    IPoets public immutable Poets;
+    IPoets public immutable poets;
     mapping(uint256 => Vow) public vows;
     mapping(address => uint256[]) public vowsByAddress;
     mapping(uint256 => TokenTransfer) public proposals;
@@ -42,14 +42,14 @@ contract Silence is ERC20, ReentrancyGuard, Ownable, IERC721Receiver {
     uint256 private constant MIN_DAILY_SILENCE = 1e18;
 
     constructor(address _poets) ERC20("Silence", "SILENCE") {
-        Poets = IPoets(_poets);
+        poets = IPoets(_poets);
         accrualEnd = block.timestamp + SILENT_ERA;
     }
 
     function takeVow(uint256 tokenId) external nonReentrant {
-        require(Poets.ownerOf(tokenId) == msg.sender, "!tokenOwner");
+        require(poets.ownerOf(tokenId) == msg.sender, "!tokenOwner");
         _takeVow(msg.sender, tokenId);
-        Poets.transferFrom(msg.sender, address(this), tokenId);
+        poets.transferFrom(msg.sender, address(this), tokenId);
         emit TakeVow(msg.sender, tokenId);
     }
 
@@ -61,7 +61,7 @@ contract Silence is ERC20, ReentrancyGuard, Ownable, IERC721Receiver {
         uint256 accrued = _claimSilence(vowId);
         delete vows[vowId];
         _mint(msg.sender, accrued);
-        Poets.transferFrom(address(this), tokenOwner, tokenId);
+        poets.transferFrom(address(this), tokenOwner, tokenId);
         emit BreakVow(tokenOwner, vowId, tokenId);
     }
 
@@ -105,7 +105,7 @@ contract Silence is ERC20, ReentrancyGuard, Ownable, IERC721Receiver {
         require(to != address(0), "!proposal");
         require(tokenId < 1025, "!origin");
         require(proposals[id].timelock < block.timestamp, "timelock");
-        Poets.transferFrom(address(this), to, tokenId);
+        poets.transferFrom(address(this), to, tokenId);
     }
 
     function claimable(uint256 vowId) external view returns (uint256) {
@@ -130,13 +130,13 @@ contract Silence is ERC20, ReentrancyGuard, Ownable, IERC721Receiver {
         uint256 tokenId,
         bytes calldata
     ) external override nonReentrant returns (bytes4) {
-        require(msg.sender == address(Poets), "!poet");
+        require(msg.sender == address(poets), "!poet");
         require(tokenId < 1025, "!origin");
         return this.onERC721Received.selector;
     }
 
     function _takeVow(address tokenOwner, uint256 tokenId) internal {
-        require(Poets.getWordCount(tokenId) == 0, "!mute");
+        require(poets.getWordCount(tokenId) == 0, "!mute");
         vowCount++;
         vows[vowCount].tokenOwner = tokenOwner;
         vows[vowCount].tokenId = tokenId;

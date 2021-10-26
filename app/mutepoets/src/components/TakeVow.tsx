@@ -5,6 +5,7 @@ import { useApprove, useTakeVow } from "../hooks/contracts";
 import { Poet } from "../types";
 import Button from "./Button";
 import SelectPoet from "./SelectPoet";
+import TransactionStatus from "./TransactionStatus";
 
 type ActionState = "start" | "approve" | "confirm";
 
@@ -24,18 +25,12 @@ const TakeVow = ({ loading, poets }: Props) => {
 
   const takeVow = useCallback(() => {
     const send = async () => {
-      console.log(selectedPoet);
       if (selectedPoet) {
         setActionState("approve");
-        const wat = await sendApprove(
-          config.silence.address,
-          selectedPoet.tokenId
-        );
-        console.log(wat);
+        await sendApprove(config.silence.address, selectedPoet.tokenId);
         setActionState("confirm");
         setSelectEnabled(false);
-        const huh = await sendTakeVow(selectedPoet.tokenId);
-        console.log(huh);
+        await sendTakeVow(selectedPoet.tokenId);
         setActionState("start");
         setSelectedPoet(undefined);
         setSelectEnabled(true);
