@@ -49,6 +49,20 @@ const mintPoets = async (
   }
 };
 
+const mintOrigins = async (signer: SignerWithAddress, contracts: Contracts) => {
+  await contracts.lostPoets
+    .connect(signer)
+    .mintOrigins(
+      [
+        contracts.silence.address,
+        contracts.silence.address,
+        contracts.silence.address,
+        contracts.silence.address,
+      ],
+      [100, 101, 102, 103]
+    );
+};
+
 const sendPoets = async (
   signer: SignerWithAddress,
   to: string,
@@ -157,25 +171,38 @@ async function deployCoreContracts(ethers: Ethers, lostPoetsAddress: string) {
 export async function deployTestnet(ethers: Ethers) {
   const [owner] = await ethers.getSigners();
 
-  //const { mockAsh, lostPoetPages, lostPoets } = await deployLostPoets(ethers);
-  const LOST_POETS_RINKEBY_ADDR = "0x39E689C76a89409dB925bC7c4100d8fBe75d5F45";
-  const { silence } = await deployCoreContracts(
-    ethers,
-    LOST_POETS_RINKEBY_ADDR
+  const { mockAsh, lostPoetPages, lostPoets } = await deployLostPoets(ethers);
+  const { silence } = await deployCoreContracts(ethers, lostPoets.address);
+  const contracts = { silence, mockAsh, lostPoetPages, lostPoets };
+
+  console.log("Activating page sale...");
+  await activatePageSale(owner, contracts);
+
+  console.log("Enabling page redemption...");
+  await enablePageRedemption(owner, contracts);
+
+  console.log("Unlocking words...");
+  await unlockWords(owner, contracts);
+
+  console.log("Setting prefix URI...");
+  await setPrefixURI(owner, contracts);
+
+  console.log("Buying pages...");
+  await buyPages(owner, 6, contracts);
+
+  console.log("Minting poets...");
+  await mintPoets(owner, 6, contracts);
+
+  console.log("Sending poets...");
+  await sendPoets(
+    owner,
+    "0xBA713FE0Cf19B0CEa404b9c1E805cB2f95bE04FF",
+    [1025, 1026, 1027],
+    contracts
   );
-  const contracts = { silence };
 
-  // console.log("Activating page sale...");
-  // await activatePageSale(owner, contracts);
-
-  // console.log("Enabling page redemption...");
-  // await enablePageRedemption(owner, contracts);
-
-  // console.log("Unlocking words...");
-  // await unlockWords(owner, contracts);
-
-  // console.log("Setting prefix URI...");
-  // await setPrefixURI(owner, contracts);
+  console.log("Pledging poets...");
+  await pledgePoets(owner, [1028, 1029, 1030], contracts);
 }
 
 export async function deployLocal(ethers: Ethers, network: Network) {
@@ -232,6 +259,9 @@ export async function deployLocal(ethers: Ethers, network: Network) {
     ],
     contracts
   );
+
+  console.log("Minting origins...");
+  await mintOrigins(owner, contracts);
 
   console.log("Setting Ether balance...");
   await setEtherBalance(

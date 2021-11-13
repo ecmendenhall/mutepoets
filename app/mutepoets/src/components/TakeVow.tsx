@@ -20,23 +20,31 @@ const TakeVow = ({ loading, poets }: Props) => {
   const { state: approveState, send: sendApprove } = useApprove();
   const { state: takeVowState, send: sendTakeVow } = useTakeVow();
   const [selectEnabled, setSelectEnabled] = useState<boolean>(true);
+  const [vowPending, setVowPending] = useState<boolean>(false);
   const [selectedPoet, setSelectedPoet] = useState<Poet>();
   const [actionState, setActionState] = useState<ActionState>("start");
 
   const takeVow = useCallback(() => {
     const send = async () => {
-      if (selectedPoet) {
-        setActionState("approve");
-        await sendApprove(config.silence.address, selectedPoet.tokenId);
-        setActionState("confirm");
-        setSelectEnabled(false);
-        await sendTakeVow(selectedPoet.tokenId);
-        setActionState("start");
-        setSelectedPoet(undefined);
-        setSelectEnabled(true);
+      setVowPending(true);
+      try {
+        if (selectedPoet) {
+          setActionState("approve");
+          await sendApprove(config.silence.address, selectedPoet.tokenId);
+          setActionState("confirm");
+          setSelectEnabled(false);
+          await sendTakeVow(selectedPoet.tokenId);
+          setActionState("start");
+          setSelectedPoet(undefined);
+          setSelectEnabled(true);
+        }
+      } finally {
+        setVowPending(false);
       }
     };
-    send();
+    if (!vowPending) {
+      send();
+    }
   }, [selectedPoet, config, sendApprove, sendTakeVow]);
 
   const onPoetSelected = (poet: Poet) => {

@@ -1,5 +1,5 @@
 import { BigNumber } from "@ethersproject/bignumber";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { roundEther } from "../helpers";
 import { useClaimAll } from "../hooks/contracts";
 import { Poet } from "../types";
@@ -51,13 +51,21 @@ const ClaimSilence = ({
   loading,
   poets,
 }: Props) => {
+  const [claimPending, setClaimPending] = useState<boolean>(false);
   const { state: claimAllState, send: sendClaimAll } = useClaimAll();
 
   const claimAll = useCallback(() => {
     const send = async () => {
-      await sendClaimAll();
+      setClaimPending(true);
+      try {
+        await sendClaimAll();
+      } finally {
+        setClaimPending(false);
+      }
     };
-    send();
+    if (!claimPending) {
+      send();
+    }
   }, [sendClaimAll]);
 
   return (

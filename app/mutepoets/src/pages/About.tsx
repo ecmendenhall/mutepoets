@@ -41,7 +41,7 @@ const About = () => {
               </h4>
               <div className="w-36 xl:w-48 bg-gray-100 text-center shadow">
                 <a
-                  href="https://twitter.com/ecmendenhall"
+                  href="https://twitter.com/eth_call"
                   target="_blank"
                   rel="noreferrer"
                 >
@@ -73,12 +73,12 @@ const About = () => {
               must claim SILENCE from the address used to take the vow.
             </p>
             <p className="mb-4">
-              Silent poets may break their vow at any time. They will be
-              transferred back to your wallet, along with any accrued SILENCE.
-            </p>
-            <p className="mb-4">
               Unbroken vows accrue additional SILENCE over time, up to a maximum
               of 5 SILENCE per day at 360 days.
+            </p>
+            <p className="mb-4">
+              Silent poets may break their vow at any time. They will be
+              transferred back to your wallet, along with any accrued SILENCE.
             </p>
             <p className="mb-4">
               Your Poet may have no words, but SILENCE gives them a voice: we
@@ -113,8 +113,8 @@ const About = () => {
               together, take the vow.
             </p>
             <p className="mb-4">
-              The Silence contract is simple, tested, and unaudited. Take the
-              vow at your own risk.
+              The Silence contract is unaudited and provided as is. Take the vow
+              at your own risk.
             </p>
           </div>
         </div>

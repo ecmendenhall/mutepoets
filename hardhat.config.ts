@@ -50,6 +50,10 @@ export default {
       url: process.env.RINKEBY_URL || "",
       accounts: { mnemonic: process.env.RINKEBY_MNEMONIC },
     },
+    ropsten: {
+      url: process.env.ROPSTEN_URL || "",
+      accounts: { mnemonic: process.env.ROPSTEN_MNEMONIC },
+    },
   },
   gasReporter: {
     enabled: process.env.REPORT_GAS !== undefined,

@@ -4,10 +4,9 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "./interfaces/IPoets.sol";
 
-contract Silence is ERC20, ReentrancyGuard, Ownable, IERC721Receiver {
+contract Silence is ERC20, Ownable, IERC721Receiver {
     struct Vow {
         address tokenOwner;
         uint256 tokenId;
@@ -46,14 +45,14 @@ contract Silence is ERC20, ReentrancyGuard, Ownable, IERC721Receiver {
         accrualEnd = block.timestamp + SILENT_ERA;
     }
 
-    function takeVow(uint256 tokenId) external nonReentrant {
+    function takeVow(uint256 tokenId) external {
         require(poets.ownerOf(tokenId) == msg.sender, "!tokenOwner");
         _takeVow(msg.sender, tokenId);
         poets.transferFrom(msg.sender, address(this), tokenId);
         emit TakeVow(msg.sender, tokenId);
     }
 
-    function breakVow(uint256 vowId) external nonReentrant {
+    function breakVow(uint256 vowId) external {
         address tokenOwner = vows[vowId].tokenOwner;
         require(vows[vowId].updated != 0, "!vow");
         require(tokenOwner == msg.sender, "!tokenOwner");
@@ -129,7 +128,7 @@ contract Silence is ERC20, ReentrancyGuard, Ownable, IERC721Receiver {
         address,
         uint256 tokenId,
         bytes calldata
-    ) external override nonReentrant returns (bytes4) {
+    ) external view override returns (bytes4) {
         require(msg.sender == address(poets), "!poet");
         require(tokenId < 1025, "!origin");
         return this.onERC721Received.selector;

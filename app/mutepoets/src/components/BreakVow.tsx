@@ -17,26 +17,34 @@ const BreakVow = ({ loading, poets }: Props) => {
   const userVows = useVowsByAccount(account);
   const { state: breakVowState, send: sendBreakVow } = useBreakVow();
   const [selectEnabled, setSelectEnabled] = useState<boolean>(true);
+  const [breakVowPending, setBreakVowPending] = useState<boolean>(false);
   const [selectedPoet, setSelectedPoet] = useState<Poet>();
   const [actionState, setActionState] = useState<ActionState>("start");
 
   const breakVow = useCallback(() => {
     const send = async () => {
-      if (selectedPoet && userVows) {
-        const vow = userVows.find((vow) =>
-          vow?.tokenId.eq(selectedPoet.tokenId)
-        );
-        if (vow) {
-          setActionState("confirm");
-          setSelectEnabled(false);
-          await sendBreakVow(vow.vowId);
-          setActionState("start");
-          setSelectedPoet(undefined);
-          setSelectEnabled(true);
+      setBreakVowPending(true);
+      try {
+        if (selectedPoet && userVows) {
+          const vow = userVows.find((vow) =>
+            vow?.tokenId.eq(selectedPoet.tokenId)
+          );
+          if (vow) {
+            setActionState("confirm");
+            setSelectEnabled(false);
+            await sendBreakVow(vow.vowId);
+            setActionState("start");
+            setSelectedPoet(undefined);
+            setSelectEnabled(true);
+          }
         }
+      } finally {
+        setBreakVowPending(false);
       }
     };
-    send();
+    if (!breakVowPending) {
+      send();
+    }
   }, [selectedPoet, userVows, sendBreakVow]);
 
   const onPoetSelected = (poet: Poet) => {

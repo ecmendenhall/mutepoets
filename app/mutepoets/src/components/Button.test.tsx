@@ -11,7 +11,7 @@ test("button text", () => {
 test("button color", () => {
   render(<Button color="green">Click here</Button>);
   const button = screen.getByText(/Click here/i);
-  expect(button).toHaveClass("bg-green-300");
+  expect(button).toHaveClass("bg-green-100");
   expect(button).toHaveClass("text-green-800");
 });
 

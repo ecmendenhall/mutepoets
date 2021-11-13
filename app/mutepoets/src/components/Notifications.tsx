@@ -39,6 +39,8 @@ const NotificationItem = ({ notification }: Props) => {
             notification.transaction.hash,
             notification.transaction.chainId
           )}
+          target="blank"
+          rel="noreferrer"
         >
           {text}
         </a>

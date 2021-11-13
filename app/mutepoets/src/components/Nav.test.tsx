@@ -4,19 +4,21 @@ import Nav from "./Nav";
 
 test("highlights active page", () => {
   render(
-    <MemoryRouter initialEntries={["/claim"]}>
+    <MemoryRouter initialEntries={["/vows"]}>
       <Nav />
     </MemoryRouter>
   );
-  expect(screen.getByText(/Claim/i)).toHaveClass("bg-yellow-200");
+  expect(screen.getByText(/Vows/i)).toHaveClass("bg-gray-200");
 });
 
 test("does not highlight inactive page", () => {
   render(
-    <MemoryRouter initialEntries={["/claim"]}>
+    <MemoryRouter initialEntries={["/vows"]}>
       <Nav />
     </MemoryRouter>
   );
-  expect(screen.getByText(/Swap/i)).not.toHaveClass("bg-yellow-200");
-  expect(screen.getByText(/Swap/i)).toHaveClass("hover:text-yellow-700");
+  expect(screen.getByText(/Claim/i)).not.toHaveClass("bg-gray-200");
+  expect(screen.getByText(/Claim/i)).toHaveClass("hover:text-gray-700");
+  expect(screen.getByText(/About/i)).not.toHaveClass("bg-gray-200");
+  expect(screen.getByText(/About/i)).toHaveClass("hover:text-gray-700");
 });

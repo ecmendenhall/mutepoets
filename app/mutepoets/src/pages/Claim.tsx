@@ -18,14 +18,16 @@ const Claim = () => {
     <FullPage subhed='"So tell me librarian, do you want an army of mute Poets or a Poet who can speak a lot of things?"'>
       <div className="font-body text-l">
         <div className="flex flex-col mb-8">
-          <ClaimSilence
-            loading={loadingMyPoets}
-            poets={silentPoets}
-            silenceBalance={silenceBalance}
-            vows={vows}
-            claimableByVow={claimableByVow}
-            totalClaimableSilence={totalClaimableSilence}
-          />
+          {!loadingMyPoets && silentPoets && (
+            <ClaimSilence
+              loading={loadingMyPoets}
+              poets={silentPoets}
+              silenceBalance={silenceBalance}
+              vows={vows}
+              claimableByVow={claimableByVow}
+              totalClaimableSilence={totalClaimableSilence}
+            />
+          )}
         </div>
       </div>
     </FullPage>
