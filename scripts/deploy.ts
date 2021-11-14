@@ -191,7 +191,7 @@ export async function deployTestnet(ethers: Ethers) {
   await buyPages(owner, 6, contracts);
 
   console.log("Minting poets...");
-  await mintPoets(owner, 6, contracts);
+  await mintPoets(owner, 1, contracts);
 
   console.log("Sending poets...");
   await sendPoets(

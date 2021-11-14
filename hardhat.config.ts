@@ -54,6 +54,10 @@ export default {
       url: process.env.ROPSTEN_URL || "",
       accounts: { mnemonic: process.env.ROPSTEN_MNEMONIC },
     },
+    kovan: {
+      url: process.env.KOVAN_URL || "",
+      accounts: { mnemonic: process.env.KOVAN_MNEMONIC },
+    },
   },
   gasReporter: {
     enabled: process.env.REPORT_GAS !== undefined,
