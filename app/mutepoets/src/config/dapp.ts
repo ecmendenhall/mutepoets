@@ -10,6 +10,7 @@ const config: Config = {
     [ChainId.Hardhat]: "http://localhost:8545",
     [ChainId.Rinkeby]: "https://eth-rinkeby.alchemyapi.io/v2/",
     [ChainId.Ropsten]: "https://eth-ropsten.alchemyapi.io/v2/",
+    [ChainId.Kovan]: "https://eth-kovan.alchemyapi.io/v2/",
   },
   multicallAddresses: {
     [ChainId.Hardhat]: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
