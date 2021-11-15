@@ -7,7 +7,7 @@ const config: Config = {
   },
   readOnlyChainId: ChainId.Mainnet,
   readOnlyUrls: {
-    [ChainId.Mainnet]: "https://eth-mainnet.alchemyapi.io/v2/",
+    [ChainId.Mainnet]: "https://eth-mainnet.alchemyapi.io/v2/yKp4fRLWn1RjOU4E2oNxHK4oxEUz3Wl7",
     [ChainId.Hardhat]: "http://localhost:8545",
     [ChainId.Rinkeby]: "https://eth-rinkeby.alchemyapi.io/v2/",
     [ChainId.Ropsten]: "https://eth-ropsten.alchemyapi.io/v2/",
