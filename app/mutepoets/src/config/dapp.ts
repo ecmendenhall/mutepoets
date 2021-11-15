@@ -5,7 +5,7 @@ const config: Config = {
     checkInterval: 500,
     expirationPeriod: 15000,
   },
-  readOnlyChainId: ChainId.Hardhat,
+  readOnlyChainId: ChainId.Mainnet,
   readOnlyUrls: {
     [ChainId.Mainnet]: "https://eth-mainnet.alchemyapi.io/v2/",
     [ChainId.Hardhat]: "http://localhost:8545",
