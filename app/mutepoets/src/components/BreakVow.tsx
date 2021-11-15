@@ -45,7 +45,7 @@ const BreakVow = ({ loading, poets }: Props) => {
     if (!breakVowPending) {
       send();
     }
-  }, [selectedPoet, userVows, sendBreakVow]);
+  }, [selectedPoet, userVows, breakVowPending, sendBreakVow]);
 
   const onPoetSelected = (poet: Poet) => {
     setSelectedPoet(poet);

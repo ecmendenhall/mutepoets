@@ -5,7 +5,6 @@ import { useApprove, useTakeVow } from "../hooks/contracts";
 import { Poet } from "../types";
 import Button from "./Button";
 import SelectPoet from "./SelectPoet";
-import TransactionStatus from "./TransactionStatus";
 
 type ActionState = "start" | "approve" | "confirm";
 
@@ -45,7 +44,7 @@ const TakeVow = ({ loading, poets }: Props) => {
     if (!vowPending) {
       send();
     }
-  }, [selectedPoet, config, sendApprove, sendTakeVow]);
+  }, [selectedPoet, config, vowPending, sendApprove, sendTakeVow]);
 
   const onPoetSelected = (poet: Poet) => {
     console.log(poet);

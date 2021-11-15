@@ -66,7 +66,7 @@ const ClaimSilence = ({
     if (!claimPending) {
       send();
     }
-  }, [sendClaimAll]);
+  }, [claimPending, sendClaimAll]);
 
   return (
     <Grid>
