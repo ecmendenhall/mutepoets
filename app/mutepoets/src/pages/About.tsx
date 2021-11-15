@@ -31,7 +31,15 @@ const About = () => {
                 Community
               </h4>
               <ul>
-                <li><a href="https://discord.gg/DMBasrV98p" target="_blank" rel="noreferrer">Discord</a></li>
+                <li>
+                  <a
+                    href="https://discord.gg/DMBasrV98p"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Discord
+                  </a>
+                </li>
                 <li>Snapshot (Coming soon)</li>
               </ul>
             </div>

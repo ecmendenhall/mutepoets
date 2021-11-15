@@ -3,6 +3,7 @@ import { HardhatEthersHelpers } from "@nomiclabs/hardhat-ethers/types";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { parseEther } from "ethers/lib/utils";
 import { Network } from "hardhat/types";
+import readlineSync from "readline-sync";
 
 type Ethers = typeof ethers & HardhatEthersHelpers;
 
@@ -161,11 +162,61 @@ async function deployLostPoets(ethers: Ethers) {
 
 async function deployCoreContracts(ethers: Ethers, lostPoetsAddress: string) {
   const SilenceFactory = await ethers.getContractFactory("Silence");
+  console.log("Deploying Silence...");
   const silence = await SilenceFactory.deploy(lostPoetsAddress);
+  console.log("Deploy tx: ", silence.deployTransaction.hash);
+  console.log(
+    "Gas price:",
+    ethers.utils.formatUnits(silence.deployTransaction.gasPrice || "0", "gwei")
+  );
+  console.log(
+    "Max fee per gas:",
+    ethers.utils.formatUnits(
+      silence.deployTransaction.maxFeePerGas || "0",
+      "gwei"
+    )
+  );
+  console.log(
+    "Max priority fee per gas:",
+    ethers.utils.formatUnits(
+      silence.deployTransaction.maxPriorityFeePerGas || "0",
+      "gwei"
+    )
+  );
   await silence.deployed();
 
   console.log("Silence deployed to:", silence.address);
   return { silence };
+}
+
+export async function deployMainnet(ethers: Ethers) {
+  const [owner] = await ethers.getSigners();
+
+  const gasEstimate = await ethers.provider.getFeeData();
+  console.log("Gas estimate:");
+  console.log(
+    "Gas price:",
+    ethers.utils.formatUnits(gasEstimate.gasPrice || "0", "gwei")
+  );
+  console.log(
+    "Max fee per gas:",
+    ethers.utils.formatUnits(gasEstimate.maxFeePerGas || "0", "gwei")
+  );
+  console.log(
+    "Max priority fee per gas:",
+    ethers.utils.formatUnits(gasEstimate.maxPriorityFeePerGas || "0", "gwei")
+  );
+
+  if (readlineSync.keyInYN("Accept this gas estimate and continue?")) {
+    const LOST_POETS_MAINNET_ADDRESS =
+      "0x4b3406a41399c7FD2BA65cbC93697Ad9E7eA61e5";
+    const { silence } = await deployCoreContracts(
+      ethers,
+      LOST_POETS_MAINNET_ADDRESS
+    );
+  } else {
+    console.log("Skipping deployment...");
+  }
 }
 
 export async function deployTestnet(ethers: Ethers) {

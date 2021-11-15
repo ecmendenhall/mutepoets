@@ -951,7 +951,7 @@ describe("silence", () => {
       ).to.be.revertedWith("!origin");
     });
 
-    it("accepts Origin poets", async () => {
+    it("accepts Origin poets by transfer", async () => {
       await mintOriginTo(owner, owner.address, contracts);
       await contracts.lostPoets
         .connect(owner)
