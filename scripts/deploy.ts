@@ -191,6 +191,7 @@ async function deployCoreContracts(ethers: Ethers, lostPoetsAddress: string) {
 
 export async function deployMainnet(ethers: Ethers) {
   const [owner] = await ethers.getSigners();
+  console.log("Deployer address:", owner.address);
 
   const gasEstimate = await ethers.provider.getFeeData();
   console.log("Gas estimate:");

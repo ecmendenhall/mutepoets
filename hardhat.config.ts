@@ -34,7 +34,7 @@ task("deploy:mainnet", "Deploys contracts", async (args, hre) => {
 
 export default {
   solidity: {
-    version: "0.8.4",
+    version: "0.8.9",
     settings: {
       optimizer: {
         enabled: true,
@@ -62,6 +62,10 @@ export default {
     kovan: {
       url: process.env.KOVAN_URL || "",
       accounts: { mnemonic: process.env.KOVAN_MNEMONIC },
+    },
+    mainnet: {
+      url: process.env.MAINNET_URL || "",
+      accounts: { mnemonic: process.env.MAINNET_MNEMONIC },
     },
   },
   gasReporter: {
