@@ -1,4 +1,5 @@
 import { BigNumber } from "@ethersproject/bignumber";
+import { TransactionState } from "@usedapp/core";
 import { useCallback, useState } from "react";
 import { roundEther } from "../helpers";
 import { useClaimAll } from "../hooks/contracts";
@@ -68,6 +69,21 @@ const ClaimSilence = ({
     }
   }, [claimPending, sendClaimAll]);
 
+  const statusMessage = (status: TransactionState) => {
+    if (status === "Mining") {
+      return "Sending Transaction";
+    } else {
+      return "Error";
+    }
+  };
+
+  const buttonText = () => {
+    if (["Mining", "Fail", "Exception"].includes(claimAllState.status)) {
+      return statusMessage(claimAllState.status);
+    }
+    return "Claim all";
+  };
+
   return (
     <Grid>
       {loading ? (
@@ -117,7 +133,7 @@ const ClaimSilence = ({
             </p>
           </div>
           <Button color="gray" onClick={claimAll}>
-            Claim all
+            {buttonText()}
           </Button>
         </>
       )}

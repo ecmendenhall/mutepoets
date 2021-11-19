@@ -248,7 +248,7 @@ export async function deployTestnet(ethers: Ethers) {
   console.log("Sending poets...");
   await sendPoets(
     owner,
-    "0xBA713FE0Cf19B0CEa404b9c1E805cB2f95bE04FF",
+    "0xe979054eB69F543298406447D8AB6CBBc5791307",
     [1025, 1026, 1027],
     contracts
   );
@@ -287,7 +287,7 @@ export async function deployLocal(ethers: Ethers, network: Network) {
   console.log("Sending poets...");
   await sendPoets(
     owner,
-    "0xBA713FE0Cf19B0CEa404b9c1E805cB2f95bE04FF",
+    "0xe979054eB69F543298406447D8AB6CBBc5791307",
     [
       1025, 1026, 1027, 1028, 1029, 1030, 1031, 1032, 1033, 1034, 1035, 1036,
       1037, 1038, 1039, 1040, 1041, 1042, 1043, 1044, 1045,
@@ -317,7 +317,7 @@ export async function deployLocal(ethers: Ethers, network: Network) {
 
   console.log("Setting Ether balance...");
   await setEtherBalance(
-    "0xBA713FE0Cf19B0CEa404b9c1E805cB2f95bE04FF",
+    "0xe979054eB69F543298406447D8AB6CBBc5791307",
     parseEther("10").toHexString(),
     network
   );

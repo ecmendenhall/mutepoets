@@ -1,4 +1,4 @@
-import { useEthers } from "@usedapp/core";
+import { TransactionState, useEthers } from "@usedapp/core";
 import { useCallback, useState } from "react";
 import { useBreakVow, useVowsByAccount } from "../hooks/contracts";
 import { Poet } from "../types";
@@ -51,7 +51,18 @@ const BreakVow = ({ loading, poets }: Props) => {
     setSelectedPoet(poet);
   };
 
+  const statusMessage = (status: TransactionState) => {
+    if (status === "Mining") {
+      return "Sending Transaction";
+    } else {
+      return "Error";
+    }
+  };
+
   const buttonText = () => {
+    if (["Mining", "Fail", "Exception"].includes(breakVowState.status)) {
+      return statusMessage(breakVowState.status);
+    }
     switch (actionState) {
       case "start":
         return "Break the vow";

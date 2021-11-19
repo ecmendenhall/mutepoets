@@ -1,7 +1,7 @@
-import Routes from './routes'
+import Routes from "./routes";
 
 export function App() {
-  return <Routes />
+  return <Routes />;
 }
 
-export default App
+export default App;

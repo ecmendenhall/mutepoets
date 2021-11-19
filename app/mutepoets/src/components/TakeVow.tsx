@@ -1,4 +1,4 @@
-import { useEthers } from "@usedapp/core";
+import { TransactionState, useEthers } from "@usedapp/core";
 import { useCallback, useState } from "react";
 import { getConfig } from "../config/contracts";
 import { useApprove, useTakeVow } from "../hooks/contracts";
@@ -47,11 +47,24 @@ const TakeVow = ({ loading, poets }: Props) => {
   }, [selectedPoet, config, vowPending, sendApprove, sendTakeVow]);
 
   const onPoetSelected = (poet: Poet) => {
-    console.log(poet);
     setSelectedPoet(poet);
   };
 
+  const statusMessage = (status: TransactionState) => {
+    if (status === "Mining") {
+      return "Sending Transaction";
+    } else {
+      return "Error";
+    }
+  };
+
   const buttonText = () => {
+    if (["Mining", "Fail", "Exception"].includes(approveState.status)) {
+      return statusMessage(approveState.status);
+    }
+    if (["Mining", "Fail", "Exception"].includes(takeVowState.status)) {
+      return statusMessage(takeVowState.status);
+    }
     switch (actionState) {
       case "start":
         return "Take the vow";
@@ -67,17 +80,23 @@ const TakeVow = ({ loading, poets }: Props) => {
       {loading ? (
         "Loading..."
       ) : (
-        <SelectPoet
-          placeChildren="right"
-          loading={loading}
-          poets={poets || []}
-          enabled={selectEnabled}
-          onSelect={onPoetSelected}
-        >
-          <Button color="gray" onClick={takeVow}>
-            {buttonText()}
-          </Button>
-        </SelectPoet>
+        <>
+          <SelectPoet
+            placeChildren="right"
+            loading={loading}
+            poets={poets || []}
+            enabled={selectEnabled}
+            onSelect={onPoetSelected}
+          >
+            <Button color="gray" onClick={takeVow}>
+              {buttonText()}
+            </Button>
+          </SelectPoet>
+          <div className="mb-4">
+            <p>{approveState.errorMessage}</p>
+            <p>{takeVowState.errorMessage}</p>
+          </div>
+        </>
       )}
     </div>
   );
