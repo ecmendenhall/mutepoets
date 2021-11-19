@@ -64,10 +64,10 @@ const ClaimSilence = ({
         setClaimPending(false);
       }
     };
-    if (!claimPending) {
+    if (!claimPending && totalClaimableSilence.gt(0)) {
       send();
     }
-  }, [claimPending, sendClaimAll]);
+  }, [claimPending, totalClaimableSilence, sendClaimAll]);
 
   const statusMessage = (status: TransactionState) => {
     if (status === "Mining") {
@@ -135,6 +135,9 @@ const ClaimSilence = ({
           <Button color="gray" onClick={claimAll}>
             {buttonText()}
           </Button>
+          <div className="mb-4">
+            <p>{claimAllState.errorMessage}</p>
+          </div>
         </>
       )}
     </Grid>

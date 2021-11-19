@@ -76,17 +76,22 @@ const BreakVow = ({ loading, poets }: Props) => {
       {loading ? (
         "Loading..."
       ) : (
-        <SelectPoet
-          placeChildren="left"
-          loading={loading}
-          poets={poets || []}
-          enabled={selectEnabled}
-          onSelect={onPoetSelected}
-        >
-          <Button color="gray" onClick={breakVow}>
-            {buttonText()}
-          </Button>
-        </SelectPoet>
+        <>
+          <SelectPoet
+            placeChildren="left"
+            loading={loading}
+            poets={poets || []}
+            enabled={selectEnabled}
+            onSelect={onPoetSelected}
+          >
+            <Button color="gray" onClick={breakVow}>
+              {buttonText()}
+            </Button>
+          </SelectPoet>
+          <div className="mb-4">
+            <p>{breakVowState.errorMessage}</p>
+          </div>
+        </>
       )}
     </div>
   );
