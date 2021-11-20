@@ -90,12 +90,18 @@ const About = () => {
             </h4>
             <p className="mb-4">
               Mute Poets may take a vow of silence. To take the vow, your Poet
-              must have no words. When your poet takes the vow, it is
-              transferred from your wallet to the Silence contract.
+              must have no words. If you have any eligible Poets, they will
+              appear on the Vows page.
+            </p>
+            <p className="mb-4">
+              When your poet takes the vow, it is transferred from your wallet
+              to the Silence contract. Your Poet remains yours at all times.
+              Only you may take and break the vow for your Poet.
             </p>
             <p className="mb-4">
               You may claim at least 1 SILENCE per day, per silent poet. You
-              must claim SILENCE from the address used to take the vow.
+              must claim SILENCE from the address used to take the vow. Claims
+              cost gas, so you may wish to let your SILENCE accrue for a while.
             </p>
             <p className="mb-4">
               Unbroken vows accrue additional SILENCE over time, up to a maximum
@@ -106,13 +112,9 @@ const About = () => {
               transferred back to your wallet, along with any accrued SILENCE.
             </p>
             <p className="mb-4">
-              Your Poet may have no words, but SILENCE gives them a voice: we
+              Our Poets may have no words, but SILENCE gives them a voice: we
               will use it as a coordination token to decide how to play the game
               together.
-            </p>
-            <p className="mb-4">
-              Your Poet remains yours at all times. Only you may take and break
-              the vow for your Poet.
             </p>
           </div>
           <div className="md:w-1/3 lg:w-1/4 mb-4 px-2">
@@ -125,36 +127,37 @@ const About = () => {
             </p>
             <p className="mb-4">
               If the Silence contract receives an Origin, the contract owner
-              address may propose a transfer and execute it after a seven day
-              waiting period. Only Origins may be transferred in this manner.
+              address (a Gnosis Safe) may propose a transfer and execute it
+              after a seven day waiting period. Only Origins may be transferred
+              in this manner.
             </p>
             <p className="mb-4">
               The intent of this mechanism is to transfer any Origins to a new
-              contract that can carry out the actions that our silent Poets
+              contract that can carry out whatever action our silent Poets
               collectively decide.
-            </p>
-            <p className="mb-4">
-              The path we choose is not decided or guaranteed. Do not take the
-              vow with any expectation about what it will be. Lost Poets has
-              secrets and twists that remain, and the game we are playing
-              together may change.
             </p>
             <h4 className="font-black font-display text-l uppercase mb-2">
               Important notes
             </h4>
             <p className="mb-4">
               This project is about cooperating with each other, exploring the
-              game and world Pak created, and making a myth of our own. If you
+              game Pak created, and making a myth of our own. If you
               want to make money, look elsewhere. If you want to write poetry
               together, take the vow.
+            </p>
+            <p className="mb-4">
+              The path we choose is not decided or guaranteed. Lost Poets has
+              secrets and twists that remain, and the game we are playing
+              together may change. Do not take the vow with any expectation
+              about the outcome.
             </p>
             <p className="mb-4">
               The Silence contract is unaudited and provided as is. Take the vow
               at your own risk.
             </p>
             <p className="mb-4">
-              Do not send tokens or NFTs to the Silence contract. They cannot be
-              recovered.
+              Do not send tokens or NFTs directly to the Silence contract. They
+              will be lost forever and cannot be recovered.
             </p>
           </div>
         </div>
