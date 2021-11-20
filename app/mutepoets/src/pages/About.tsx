@@ -1,5 +1,5 @@
-import Contracts from "../components/Contracts";
-import FullPage from "../layouts/FullPage";
+import Contracts from '../components/Contracts'
+import FullPage from '../layouts/FullPage'
 
 const About = () => {
   return (
@@ -39,6 +39,8 @@ const About = () => {
                   >
                     Guild
                   </a>
+                </li>
+                <li>
                   <a
                     href="https://discord.gg/DMBasrV98p"
                     target="_blank"
@@ -48,7 +50,6 @@ const About = () => {
                   </a>
                 </li>
                 <li>
-                  {" "}
                   <a
                     href="https://snapshot.org/#/mutepoets.eth"
                     target="_blank"
@@ -120,8 +121,7 @@ const About = () => {
             </h4>
             <p className="mb-4">
               If we are lucky enough to receive an Origin Poet, we will use
-              SILENCE to choose a path together. That path is not decided or
-              guaranteed.
+              SILENCE to choose a path together.
             </p>
             <p className="mb-4">
               If the Silence contract receives an Origin, the contract owner
@@ -131,8 +131,13 @@ const About = () => {
             <p className="mb-4">
               The intent of this mechanism is to transfer any Origins to a new
               contract that can carry out the actions that our silent Poets
-              collectively decide. Do not take the vow with any expectation
-              about what that action will be.
+              collectively decide.
+            </p>
+            <p className="mb-4">
+              The path we choose is not decided or guaranteed. Do not take the
+              vow with any expectation about what it will be. Lost Poets has
+              secrets and twists that remain, and the game we are playing
+              together may change.
             </p>
             <h4 className="font-black font-display text-l uppercase mb-2">
               Important notes
@@ -155,7 +160,7 @@ const About = () => {
         </div>
       </div>
     </FullPage>
-  );
-};
+  )
+}
 
-export default About;
+export default About
