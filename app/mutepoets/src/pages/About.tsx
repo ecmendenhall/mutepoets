@@ -1,5 +1,5 @@
-import Contracts from '../components/Contracts'
-import FullPage from '../layouts/FullPage'
+import Contracts from "../components/Contracts";
+import FullPage from "../layouts/FullPage";
 
 const About = () => {
   return (
@@ -112,7 +112,7 @@ const About = () => {
               transferred back to your wallet, along with any accrued SILENCE.
             </p>
             <p className="mb-4">
-              Our Poets may have no words, but SILENCE gives them a voice: we
+              Our poets may have no words, but SILENCE gives them a voice: we
               will use it as a coordination token to decide how to play the game
               together.
             </p>
@@ -141,9 +141,9 @@ const About = () => {
             </h4>
             <p className="mb-4">
               This project is about cooperating with each other, exploring the
-              game Pak created, and making a myth of our own. If you
-              want to make money, look elsewhere. If you want to write poetry
-              together, take the vow.
+              game Pak created, and making a myth of our own. If you want to
+              make money, look elsewhere. If you want to write poetry together,
+              take the vow.
             </p>
             <p className="mb-4">
               The path we choose is not decided or guaranteed. Lost Poets has
@@ -163,7 +163,7 @@ const About = () => {
         </div>
       </div>
     </FullPage>
-  )
-}
+  );
+};
 
-export default About
+export default About;
