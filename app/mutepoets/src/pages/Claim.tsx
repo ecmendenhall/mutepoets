@@ -28,6 +28,7 @@ const Claim = () => {
               totalClaimableSilence={totalClaimableSilence}
             />
           )}
+          {!loadingMyPoets && !silentPoets && <div className="text-center">No claimable SILENCE.</div>}
         </div>
       </div>
     </FullPage>
