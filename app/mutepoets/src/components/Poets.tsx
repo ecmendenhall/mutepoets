@@ -10,6 +10,23 @@ interface Props {
 }
 
 const Poets = ({ loading, poets, silentPoetsCount }: Props) => {
+
+  const message = () => {
+    const count = silentPoetsCount && formatUnits(silentPoetsCount, "wei");
+    if (count) {
+      if (count === "0") {
+        return "No Poets have taken the vow";
+      } else if (count === "1") {
+        return "1 Poet has taken the vow";
+      } else {
+        return `${count} Poets have taken the vow`;
+      }
+    } else {
+      return "No Poets have taken the vow";
+    }   
+
+  }
+
   return (
     <div>
       {loading ? (
@@ -18,8 +35,7 @@ const Poets = ({ loading, poets, silentPoetsCount }: Props) => {
         <PoetGrid placeChildren="left" loading={loading} poets={poets || []}>
           <div className="flex flex-col place-content-center bg-gray-100 shadow p-4">
             <h4 className="font-black font-display font-l text-center uppercase">
-              {silentPoetsCount && formatUnits(silentPoetsCount, "wei")} Poets
-              have taken the vow
+              {message()}
             </h4>
           </div>
         </PoetGrid>
