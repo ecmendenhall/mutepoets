@@ -6,7 +6,7 @@ const About = () => {
     <FullPage subhed='"So tell me librarian, do you want an army of mute Poets or a Poet who can speak a lot of things?"'>
       <div className="font-body text-l">
         <div className="flex flex-col md:flex-row justify-evenly">
-          <div className="mb-4 flex flex-col">
+          <div className="mb-4 px-2 flex flex-col">
             <div className="mb-4">
               <Contracts />
             </div>
@@ -33,6 +33,13 @@ const About = () => {
               <ul>
                 <li>
                   <a
+                    href="https://alpha.guild.xyz/silence"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Guild
+                  </a>
+                  <a
                     href="https://discord.gg/DMBasrV98p"
                     target="_blank"
                     rel="noreferrer"
@@ -40,7 +47,16 @@ const About = () => {
                     Discord
                   </a>
                 </li>
-                <li>Snapshot (Coming soon)</li>
+                <li>
+                  {" "}
+                  <a
+                    href="https://snapshot.org/#/mutepoets.eth"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Snapshot
+                  </a>
+                </li>
               </ul>
             </div>
             <div className="mb-4">
@@ -67,7 +83,7 @@ const About = () => {
               </div>
             </div>
           </div>
-          <div className="md:w-1/3 lg:w-1/4 mb-4">
+          <div className="md:w-1/3 lg:w-1/4 mb-4 px-2">
             <h4 className="font-black font-display text-l uppercase mb-2">
               How it works
             </h4>
@@ -90,16 +106,22 @@ const About = () => {
             </p>
             <p className="mb-4">
               Your Poet may have no words, but SILENCE gives them a voice: we
-              will use it to decide how to play the game together.
+              will use it as a coordination token to decide how to play the game
+              together.
+            </p>
+            <p className="mb-4">
+              Your Poet remains yours at all times. Only you may take and break
+              the vow for your Poet.
             </p>
           </div>
-          <div className="md:w-1/3 lg:w-1/4 mb-4">
+          <div className="md:w-1/3 lg:w-1/4 mb-4 px-2">
             <h4 className="font-black font-display text-l uppercase mb-2">
               What about origins?
             </h4>
             <p className="mb-4">
               If we are lucky enough to receive an Origin Poet, we will use
-              SILENCE to choose a path together.
+              SILENCE to choose a path together. That path is not decided or
+              guaranteed.
             </p>
             <p className="mb-4">
               If the Silence contract receives an Origin, the contract owner
@@ -109,7 +131,8 @@ const About = () => {
             <p className="mb-4">
               The intent of this mechanism is to transfer any Origins to a new
               contract that can carry out the actions that our silent Poets
-              collectively decide.
+              collectively decide. Do not take the vow with any expectation
+              about what that action will be.
             </p>
             <h4 className="font-black font-display text-l uppercase mb-2">
               Important notes
@@ -123,6 +146,10 @@ const About = () => {
             <p className="mb-4">
               The Silence contract is unaudited and provided as is. Take the vow
               at your own risk.
+            </p>
+            <p className="mb-4">
+              Do not send tokens or NFTs to the Silence contract. They cannot be
+              recovered.
             </p>
           </div>
         </div>
