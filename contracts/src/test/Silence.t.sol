@@ -518,4 +518,29 @@ contract TestClaimable is SilenceTest {
     function test_returns_zero_for_invalid_vows() public {
         assertEq(silence.claimable(1234), 0);
     }
+
+    function test_multiple_vows_accrue_less_silence() public {
+        poetHolder2.buyPages(1);
+        poetHolder2.mintPoets(1);
+        poetHolder2.approveTransfer(address(silence), 1026);
+
+        hevm.warp(block.timestamp + 100 days);
+        poetHolder2.takeVow(1026);
+
+        hevm.warp(block.timestamp + 100 days);
+        poetHolder2.breakVow(2);
+        poetHolder2.approveTransfer(address(silence), 1026);
+        poetHolder2.takeVow(1026);
+
+        hevm.warp(block.timestamp + 100 days);
+        poetHolder2.breakVow(3);
+        poetHolder2.approveTransfer(address(silence), 1026);
+        poetHolder2.takeVow(1026);
+
+        hevm.warp(block.timestamp + 60 days);
+        poetHolder2.breakVow(4);
+        poetHolder.breakVow(1);
+
+        assertGt(silence.balanceOf(address(poetHolder)), silence.balanceOf(address(poetHolder2)));
+    }
 }
